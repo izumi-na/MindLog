@@ -1,8 +1,13 @@
 # Dependencies
 node_modules/
 
+# Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Claude
+.claude/
+
 # Documents
 ROADMAP.md
 CLAUDE.md
-
-.claude/
