@@ -1,0 +1,30 @@
+{
+  "name": "mindlog",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Izumi Naruha <naruha_kaede@icloud.com> (https://github.com/izumi-na)",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.26.1",
+  "repository": {
+		"type": "git",
+		"url": "git+https://github.com/izumi-na/MindLog"
+	},
+  "scripts": {
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write .",
+    "dev:frontend": "pnpm -F frontend dev",
+    "build:frontend": "pnpm -F frontend build",
+    "type-check:backend": "pnpm -F backend type-check",
+    "build:backend:dev": "pnpm -F backend sam:build:dev",
+    "deploy:backend:dev": "pnpm -F backend sam:deploy:dev"
+  },
+  "dependencies": {
+    "hono": "^4.11.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "@types/node": "^25.0.6",
+    "typescript": "^5.9.3"
+  }
+}

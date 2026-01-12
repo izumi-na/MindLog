@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Documents
+ROADMAP.md
+CLAUDE.md
+
+.claude/
