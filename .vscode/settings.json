@@ -1,0 +1,54 @@
+{
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": false,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "always",
+		"source.addMissingImports": "always",
+		"source.organizeImports.biome": "always"
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "biomejs.biome",
+	"todo-tree.general.tags": [
+		"TODO:" // TODO:
+	],
+	"todo-tree.highlights.customHighlight": {
+		"TODO:": {
+			"icon": "check-circle-fill",
+			"foreground": "#fff",
+			"iconColor": "#ffbd29",
+			"background": "#ffbd29"
+		}
+	},
+	"yaml.schemaStore.enable": true,
+	"yaml.customTags": [
+		"!Ref",
+		"!Sub",
+		"!Sub sequence",
+		"!If",
+		"!If sequence",
+		"!Equals",
+		"!Equals sequence",
+		"!GetAtt",
+		"!GetAtt sequence",
+		"!Join",
+		"!Join sequence",
+		"!Select",
+		"!Select sequence",
+		"!Split",
+		"!Split sequence",
+		"!ImportValue",
+		"!Condition",
+		"!And",
+		"!And sequence",
+		"!Or",
+		"!Or sequence",
+		"!Not",
+		"!Not sequence",
+		"!Base64",
+		"!Cidr",
+		"!FindInMap",
+		"!FindInMap sequence",
+		"!GetAZs",
+		"!Transform"
+	]
+}
