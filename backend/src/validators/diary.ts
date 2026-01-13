@@ -1,3 +1,4 @@
+import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import z from "zod";
 
 export const CreateDiaryRequestSchema = z.object({
@@ -12,3 +13,7 @@ export const CreateDiaryRequestSchema = z.object({
 		.enum(["happy", "moved", "satisfied", "sad", "anger", "surprise"])
 		.optional(),
 });
+
+export function isUuidValidateV7(uuid: string): boolean {
+	return uuidValidate(uuid) && uuidVersion(uuid) === 7;
+}
