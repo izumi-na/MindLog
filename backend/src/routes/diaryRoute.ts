@@ -2,12 +2,15 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { ERROR_CODES, ERROR_STATUS_CODE } from "../constants/error";
 import { isAuthenticated } from "../middlewares/auth";
-import { createDiary, getDiaries } from "../services/diaryService";
+import { createDiary, deleteDiary, getDiaries } from "../services/diaryService";
 import type { HonoEnv } from "../types/hono";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { errorResponse } from "../utils/response";
-import { CreateDiaryRequestSchema } from "../validators/diary";
+import {
+	CreateDiaryRequestSchema,
+	isUuidValidateV7,
+} from "../validators/diary";
 
 export const diaryRoute = new Hono<HonoEnv>()
 	// 認証ミドルウェアを設定
@@ -42,13 +45,42 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully to create diary request:", {
+			logger.info("Successfully created diary request:", {
 				userId,
 				diaryId: result.data.diaryId,
 			});
 			return c.json(result, 201);
 		} catch (error) {
-			logger.error("Failed to create diary request:", toError(error));
+			logger.error("Failed created diary request:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	})
+	// 日記物理削除
+	.delete("/:diaryId", async (c) => {
+		try {
+			const userId = c.get("userId");
+			const diaryId = c.req.param("diaryId");
+			const isValid = isUuidValidateV7(diaryId);
+			if (!isValid) {
+				return c.json(
+					errorResponse(ERROR_CODES.INVALID_INPUT_ERROR),
+					ERROR_STATUS_CODE[ERROR_CODES.INVALID_INPUT_ERROR],
+				);
+			}
+			const result = await deleteDiary(userId, diaryId);
+			if (!result.success) {
+				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
+			}
+			logger.info("Successfully to delete diary request:", {
+				userId,
+				diaryId: result.data.diaryId,
+			});
+			return c.json(result, 200);
+		} catch (error) {
+			logger.error("Failed to delete diary request:", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],

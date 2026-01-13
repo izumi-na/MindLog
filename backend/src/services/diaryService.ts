@@ -1,4 +1,4 @@
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { v7 as uuidv7 } from "uuid";
 import { ERROR_CODES } from "../constants/error";
 import type { CreateDiaryRequest, DiaryItems } from "../types/diary";
@@ -65,6 +65,40 @@ export const createDiary = async (
 		return successResponse(diaryData);
 	} catch (error) {
 		logger.error("Failed to create diary in DynamoDB:", toError(error));
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
+};
+
+// 日記物理削除
+export const deleteDiary = async (
+	userId: string,
+	diaryId: string,
+): Promise<ResultResponse<DiaryItems>> => {
+	try {
+		const result = await dynamoDBDocClient.send(
+			new DeleteCommand({
+				TableName: process.env.DIARIES_TABLE_NAME,
+				Key: {
+					userId,
+					diaryId,
+				},
+				ReturnValues: "ALL_OLD",
+			}),
+		);
+		if (!result.Attributes) {
+			logger.info("Not found the diary for deletion in DynamoDB:", {
+				userId,
+				diaryId,
+			});
+			return errorResponse(ERROR_CODES.DIARY_NOT_FOUND);
+		}
+		logger.info("Successfully to delete diary in DynamoDB:", {
+			userId,
+			diaryId,
+		});
+		return successResponse(result.Attributes as DiaryItems);
+	} catch (error) {
+		logger.error("Failed to delete diary in DynamoDB:", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
