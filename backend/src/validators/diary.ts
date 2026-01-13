@@ -1,5 +1,6 @@
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import z from "zod";
+import { feelingList } from "../constants/diary";
 
 export const CreateDiaryRequestSchema = z.object({
 	date: z
@@ -9,9 +10,7 @@ export const CreateDiaryRequestSchema = z.object({
 		.string()
 		.min(1, "Content is required")
 		.max(10000, "Content too long"),
-	feeling: z
-		.enum(["happy", "moved", "satisfied", "sad", "anger", "surprise"])
-		.optional(),
+	feeling: z.enum(feelingList).optional(),
 });
 
 export function isUuidValidateV7(uuid: string): boolean {

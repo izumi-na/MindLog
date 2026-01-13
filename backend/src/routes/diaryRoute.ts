@@ -7,6 +7,7 @@ import {
 	deleteDiary,
 	getDiaries,
 	getDiary,
+	updateDiary,
 } from "../services/diaryService";
 import type { HonoEnv } from "../types/hono";
 import { toError } from "../utils/error";
@@ -115,6 +116,36 @@ export const diaryRoute = new Hono<HonoEnv>()
 			return c.json(result, 200);
 		} catch (error) {
 			logger.error("Failed to get diary request:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	})
+	// 特定の日記更新
+	.put("/:diaryId", zValidator("json", CreateDiaryRequestSchema), async (c) => {
+		try {
+			const userId = c.get("userId");
+			const diaryId = c.req.param("diaryId");
+			const isValid = isUuidValidateV7(diaryId);
+			if (!isValid) {
+				return c.json(
+					errorResponse(ERROR_CODES.INVALID_INPUT_ERROR),
+					ERROR_STATUS_CODE[ERROR_CODES.INVALID_INPUT_ERROR],
+				);
+			}
+			const params = c.req.valid("json");
+			const result = await updateDiary(userId, diaryId, params);
+			if (!result.success) {
+				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
+			}
+			logger.info("Successfully to update diary request:", {
+				userId,
+				diaryId: result.data.diaryId,
+			});
+			return c.json(result, 200);
+		} catch (error) {
+			logger.error("Failed to update diary request:", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
