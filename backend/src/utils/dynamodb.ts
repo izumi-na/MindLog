@@ -7,7 +7,7 @@ if (!process.env.REGION) {
 
 const client = new DynamoDBClient({ region: process.env.REGION });
 
-export const DynamoDBDocClient = DynamoDBDocumentClient.from(client, {
+export const dynamoDBDocClient = DynamoDBDocumentClient.from(client, {
 	marshallOptions: {
 		removeUndefinedValues: true, // undefinedの値を削除
 	},
