@@ -1,0 +1,26 @@
+version = 0.1
+
+[dev.global.parameters]
+region = "ap-northeast-1"
+
+[dev.build.parameters]
+parallel = true
+
+[dev.sync.parameters]
+stack_name = "dev-test-mindlog-sam"
+watch = true
+
+[dev.deploy.parameters]
+confirm_changeset = true
+capabilities = ["CAPABILITY_IAM","CAPABILITY_NAMED_IAM"]
+stack_name = "dev-test-mindlog-sam"
+s3_bucket = "dev-test-mindlog-sam-artifacts"
+s3_prefix = "dev"
+parameter_overrides = [
+    "NodeEnv=dev",
+    "Project=mindlog",
+    "AWSRegion=ap-northeast-1",
+    "CognitoUserPoolId=ap-northeast-1_iYuaTtCmN",
+    "CognitoClientId=61fuuuv5ioofu4ngqa5n7olar6"
+]
+

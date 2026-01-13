@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  NodeEnv:
+    Description: Deployment environment
+    Type: String
+    Default: dev
+    AllowedValues:
+      - test
+      - dev
+
+  Project:
+    Description: Project name
+    Type: String
+    Default: mindlog
+
+  AWSRegion:
+    Description: AWS region name
+    Type: String
+    Default: ap-northeast-1
+
+  CognitoUserPoolId:
+    Description: Cognito User Pool Id for Authentication
+    Type: String
+
+  CognitoClientId:
+    Description: Cognito User Pool ClientId for Authentication
+    Type: String
+
+Globals:
+  Api:
+    TracingEnabled: true
+  Function:
+    Runtime: nodejs24.x
+    Architectures:
+      - arm64
+    Tracing: Active
+    Timeout: 180
+    Environment:
+        Variables:
+          NODE_ENV: !Ref NodeEnv
+          PROJECT: !Ref Project
+          REGION: !Ref AWSRegion
+          DIARIES_TABLE_NAME: !Ref DiaryTable
+          COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
+          COGNITO_USERPOOL_CLIENT_ID: !Ref CognitoClientId
+
+Resources:
+  RestApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${NodeEnv}-${Project}-Api"
+      StageName: !Ref NodeEnv
+      Cors:
+        AllowOrigin: "'http://localhost:3000'"
+        AllowHeaders: "'Content-Type, Authorization'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${NodeEnv}-${Project}-Api-Function"
+      CodeUri: src
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Method: ANY
+            Path: /{proxy+}
+            RestApiId: !Ref RestApiGateway
+      Handler: handler.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref DiaryTable
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - handler.ts
+        Target: es2024
+        Format: cjs
+        Sourcemap: true
+
+  DiaryTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${NodeEnv}-${Project}-Diary-Table"
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: diaryId
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: diaryId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+      GlobalSecondaryIndexes:
+        - IndexName: dateIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: date
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+Outputs:
+  RestApiGatewayUrl:
+    Description: RestApiGateway endpoint URL
+    Value: !Sub "https://${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${NodeEnv}"
