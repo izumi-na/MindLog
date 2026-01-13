@@ -3,10 +3,15 @@ import {
 	GetCommand,
 	PutCommand,
 	QueryCommand,
+	UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v7 as uuidv7 } from "uuid";
 import { ERROR_CODES } from "../constants/error";
-import type { CreateDiaryRequest, DiaryItems } from "../types/diary";
+import type {
+	CreateDiaryRequest,
+	CreateDiaryRequestKeys,
+	DiaryItems,
+} from "../types/diary";
 import type { ResultResponse } from "../types/result";
 import { dynamoDBDocClient } from "../utils/dynamodb";
 import { toError } from "../utils/error";
@@ -137,6 +142,79 @@ export const getDiary = async (
 		return successResponse(result.Item as DiaryItems);
 	} catch (error) {
 		logger.error("Failed to get diary in DynamoDB:", toError(error));
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
+};
+
+// 特定の日記更新
+export const updateDiary = async (
+	userId: string,
+	diaryId: string,
+	params: CreateDiaryRequest,
+): Promise<ResultResponse<DiaryItems>> => {
+	try {
+		// 更新に使用するパラメータを動的に組み立て
+		// リクエストで指定されたフィールドのみ更新する
+		const updateExpression = [];
+		const expressionAttributeNames: Record<
+			string,
+			CreateDiaryRequestKeys | "updatedAt"
+		> = {};
+		const expressionAttributeValues: Record<string, string> = {};
+
+		const timestamp = new Date().toISOString();
+
+		if (params.date) {
+			updateExpression.push("#date = :date");
+			expressionAttributeNames["#date"] = "date";
+			expressionAttributeValues[":date"] = params.date;
+		}
+		if (params.content) {
+			updateExpression.push("#content = :content");
+			expressionAttributeNames["#content"] = "content";
+			expressionAttributeValues[":content"] = params.content;
+		}
+		if (params.feeling) {
+			updateExpression.push("#feeling = :feeling");
+			expressionAttributeNames["#feeling"] = "feeling";
+			expressionAttributeValues[":feeling"] = params.feeling;
+		}
+
+		// updatedAtは常時更新
+		updateExpression.push("#updatedAt = :updatedAt");
+		expressionAttributeNames["#updatedAt"] = "updatedAt";
+		expressionAttributeValues[":updatedAt"] = timestamp;
+
+		const result = await dynamoDBDocClient.send(
+			new UpdateCommand({
+				TableName: process.env.DIARIES_TABLE_NAME,
+				Key: {
+					userId,
+					diaryId,
+				},
+				UpdateExpression: `set ${updateExpression.join(", ")}`,
+				ExpressionAttributeNames: expressionAttributeNames,
+				ExpressionAttributeValues: expressionAttributeValues,
+				ReturnValues: "ALL_NEW",
+				ConditionExpression:
+					"attribute_exists(userId) AND attribute_exists(diaryId)",
+			}),
+		);
+		logger.info("Successfully to update diary in DynamoDB:", {
+			userId,
+			diaryId,
+		});
+		return successResponse(result.Attributes as DiaryItems);
+	} catch (error) {
+		const err = toError(error);
+		if (err.name === "ConditionalCheckFailedException") {
+			logger.info("Not found the diary for update in DynamoDB:", {
+				userId,
+				diaryId,
+			});
+			return errorResponse(ERROR_CODES.DIARY_NOT_FOUND);
+		}
+		logger.error("Failed to update diary in DynamoDB:", err);
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
