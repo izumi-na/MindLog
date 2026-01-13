@@ -5,9 +5,16 @@ node_modules/
 .terraform/
 .terraform.lock.hcl
 
+# SAM
+.aws-sam/
+
 # Claude
 .claude/
 
 # Documents
 ROADMAP.md
 CLAUDE.md
+
+# Environment variables
+.env
+.env.local
