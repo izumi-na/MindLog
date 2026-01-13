@@ -87,6 +87,18 @@ sam deploy --config-env dev
 pnpm dev
 ```
 
+### Terraform
+```bash
+# フォーマット
+terraform fmt
+# 初期化
+terraform init
+# 構文チェック
+terraform validate
+# 変更内容確認&適用
+terraform apply
+```
+
 ## ライセンス
 
 UNLICENSED
