@@ -1,8 +1,9 @@
-import { QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { v7 as uuidv7 } from "uuid";
 import { ERROR_CODES } from "../constants/error";
-import type { DiaryItems } from "../types/diary";
+import type { CreateDiaryRequest, DiaryItems } from "../types/diary";
 import type { ResultResponse } from "../types/result";
-import { DynamoDBDocClient } from "../utils/dynamodb";
+import { dynamoDBDocClient } from "../utils/dynamodb";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { errorResponse, successResponse } from "../utils/response";
@@ -12,7 +13,7 @@ export const getDiaries = async (
 	userId: string,
 ): Promise<ResultResponse<DiaryItems[]>> => {
 	try {
-		const result = await DynamoDBDocClient.send(
+		const result = await dynamoDBDocClient.send(
 			new QueryCommand({
 				TableName: process.env.DIARIES_TABLE_NAME,
 				KeyConditionExpression: "userId = :userId",
@@ -33,4 +34,37 @@ export const getDiaries = async (
 		logger.error("Failed to fetch diaries from DynamoDB:", toError(error));
 	}
 	return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+};
+
+// 日記新規登録
+export const createDiary = async (
+	userId: string,
+	params: CreateDiaryRequest,
+): Promise<ResultResponse<DiaryItems>> => {
+	const timestamp = new Date().toISOString();
+	const diaryData = {
+		userId: userId,
+		diaryId: uuidv7(),
+		date: params.date,
+		content: params.content,
+		feeling: params.feeling,
+		createdAt: timestamp,
+		updatedAt: timestamp,
+	};
+	try {
+		await dynamoDBDocClient.send(
+			new PutCommand({
+				TableName: process.env.DIARIES_TABLE_NAME,
+				Item: diaryData,
+			}),
+		);
+		logger.info("Successfully to create diary in DynamoDB:", {
+			userId,
+			diaryId: diaryData.diaryId,
+		});
+		return successResponse(diaryData);
+	} catch (error) {
+		logger.error("Failed to create diary in DynamoDB:", toError(error));
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
 };

@@ -1,11 +1,13 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { ERROR_CODES, ERROR_STATUS_CODE } from "../constants/error";
 import { isAuthenticated } from "../middlewares/auth";
-import { getDiaries } from "../services/diaryService";
+import { createDiary, getDiaries } from "../services/diaryService";
 import type { HonoEnv } from "../types/hono";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { errorResponse } from "../utils/response";
+import { CreateDiaryRequestSchema } from "../validators/diary";
 
 export const diaryRoute = new Hono<HonoEnv>()
 	// 認証ミドルウェアを設定
@@ -14,12 +16,6 @@ export const diaryRoute = new Hono<HonoEnv>()
 	.get("/", async (c) => {
 		try {
 			const userId = c.get("userId");
-			if (!userId || userId.trim() === "") {
-				return c.json(
-					errorResponse(ERROR_CODES.INVALID_INPUT_ERROR),
-					ERROR_STATUS_CODE[ERROR_CODES.INVALID_INPUT_ERROR],
-				);
-			}
 			const result = await getDiaries(userId);
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
@@ -31,6 +27,28 @@ export const diaryRoute = new Hono<HonoEnv>()
 			return c.json(result, 200);
 		} catch (error) {
 			logger.error("Failed to get diaries request:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	})
+	// 日記新規登録
+	.post("/", zValidator("json", CreateDiaryRequestSchema), async (c) => {
+		try {
+			const userId = c.get("userId");
+			const params = c.req.valid("json");
+			const result = await createDiary(userId, params);
+			if (!result.success) {
+				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
+			}
+			logger.info("Successfully to create diary request:", {
+				userId,
+				diaryId: result.data.diaryId,
+			});
+			return c.json(result, 201);
+		} catch (error) {
+			logger.error("Failed to create diary request:", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
