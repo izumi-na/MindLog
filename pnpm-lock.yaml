@@ -24,12 +24,18 @@ importers:
 
   backend:
     dependencies:
+      '@aws-lambda-powertools/logger':
+        specifier: ^2.30.2
+        version: 2.30.2
       '@aws-sdk/client-dynamodb':
         specifier: ^3.966.0
         version: 3.966.0
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.966.0
         version: 3.966.0(@aws-sdk/client-dynamodb@3.966.0)
+      aws-jwt-verify:
+        specifier: ^5.1.1
+        version: 5.1.1
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -40,6 +46,9 @@ importers:
       esbuild:
         specifier: ^0.27.2
         version: 0.27.2
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
 
   frontend:
     dependencies:
@@ -84,6 +93,20 @@ packages:
 
   '@aws-crypto/util@5.2.0':
     resolution: {integrity: sha512-4RkU9EsI6ZpBve5fseQlGNUWKMa1RLPQ1dnjnQoe07ldfIzcsGb5hC5W0Dm7u423KWzawlrpbjXBrXCEv9zazQ==}
+
+  '@aws-lambda-powertools/commons@2.30.2':
+    resolution: {integrity: sha512-bhhrpUdCfpBGKllJfGyi5faf12mh6tjYmOf5DALgIym89NkidFphPdZtWl5l6IN1YhgO8HWPX4Yvmi4tPBE/uw==}
+
+  '@aws-lambda-powertools/logger@2.30.2':
+    resolution: {integrity: sha512-BSh2hPcnYUJNn/Olwby4LpHbUWePKuSKtfNeTBXAn+op3OcC7kx7CHSqc5PYGW7x2T8uliE1IuGB5vQz2gBeDQ==}
+    peerDependencies:
+      '@aws-lambda-powertools/jmespath': 2.30.2
+      '@middy/core': 4.x || 5.x || 6.x || 7.x
+    peerDependenciesMeta:
+      '@aws-lambda-powertools/jmespath':
+        optional: true
+      '@middy/core':
+        optional: true
 
   '@aws-sdk/client-dynamodb@3.966.0':
     resolution: {integrity: sha512-u5zA3T9L5pMDV7YBHkGec6cAhnEyiKcd+HjLdJsRBCmMvq8CDZ1+uNusiKqYc7hUi3b8RF5bzGBZphWgUJQWZA==}
@@ -912,6 +935,10 @@ packages:
   '@types/react@19.2.8':
     resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
 
+  aws-jwt-verify@5.1.1:
+    resolution: {integrity: sha512-j6whGdGJmQ27agk4ijY8RPv6itb8JLb7SCJ86fEnneTcSBrpxuwL8kLq6y5WVH95aIknyAloEqAsaOLS1J8ITQ==}
+    engines: {node: '>=18.0.0'}
+
   baseline-browser-mapping@2.9.14:
     resolution: {integrity: sha512-B0xUquLkiGLgHhpPBqvl7GWegWBUNuujQ6kXd/r1U38ElPT6Ok8KZ8e+FpUGEc2ZoRQUzq/aUnaKFc/svWUGSg==}
     hasBin: true
@@ -944,6 +971,14 @@ packages:
   fast-xml-parser@5.2.5:
     resolution: {integrity: sha512-pfX9uG9Ki0yekDHx2SiuRIyFdyAr1kMIMitPvb0YBo8SUfKvia7w7FIyd/l6av85pFYRhZscS75MwMnbvY+hcQ==}
     hasBin: true
+
+  fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
+  get-tsconfig@4.13.0:
+    resolution: {integrity: sha512-1VKTZJCwBrvbd+Wn3AOgQP/2Av+TfTCOlE4AcRJE72W1ksZXbAx8PPBR9RzgTeSPzlPMHrbANMH3LbltH73wxQ==}
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -1081,6 +1116,9 @@ packages:
     resolution: {integrity: sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==}
     engines: {node: '>=0.10.0'}
 
+  resolve-pkg-maps@1.0.0:
+    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
+
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
@@ -1123,6 +1161,11 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  tsx@4.21.0:
+    resolution: {integrity: sha512-5C1sg4USs1lfG0GFb2RLXsdpXqBSEhAaA/0kPL01wxzpMqLILNxIxIOKiILz+cdg/pLnOUxFYOR5yhHU666wbw==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -1164,6 +1207,15 @@ snapshots:
       '@aws-sdk/types': 3.965.0
       '@smithy/util-utf8': 2.3.0
       tslib: 2.8.1
+
+  '@aws-lambda-powertools/commons@2.30.2':
+    dependencies:
+      '@aws/lambda-invoke-store': 0.2.3
+
+  '@aws-lambda-powertools/logger@2.30.2':
+    dependencies:
+      '@aws-lambda-powertools/commons': 2.30.2
+      '@aws/lambda-invoke-store': 0.2.3
 
   '@aws-sdk/client-dynamodb@3.966.0':
     dependencies:
@@ -2175,6 +2227,8 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
+  aws-jwt-verify@5.1.1: {}
+
   baseline-browser-mapping@2.9.14: {}
 
   bowser@2.13.1: {}
@@ -2224,6 +2278,13 @@ snapshots:
   fast-xml-parser@5.2.5:
     dependencies:
       strnum: 2.1.2
+
+  fsevents@2.3.3:
+    optional: true
+
+  get-tsconfig@4.13.0:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
 
   graceful-fs@4.2.11: {}
 
@@ -2337,6 +2398,8 @@ snapshots:
 
   react@19.2.3: {}
 
+  resolve-pkg-maps@1.0.0: {}
+
   scheduler@0.27.0: {}
 
   semver@7.7.3:
@@ -2388,6 +2451,13 @@ snapshots:
   tapable@2.3.0: {}
 
   tslib@2.8.1: {}
+
+  tsx@4.21.0:
+    dependencies:
+      esbuild: 0.27.2
+      get-tsconfig: 4.13.0
+    optionalDependencies:
+      fsevents: 2.3.3
 
   typescript@5.9.3: {}
 
