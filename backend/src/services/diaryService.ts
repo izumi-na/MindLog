@@ -56,6 +56,7 @@ export const createDiary = async (
 		userId: userId,
 		diaryId: uuidv7(),
 		date: params.date,
+		title: params.title,
 		content: params.content,
 		feeling: params.feeling,
 		createdAt: timestamp,
@@ -168,6 +169,11 @@ export const updateDiary = async (
 			updateExpression.push("#date = :date");
 			expressionAttributeNames["#date"] = "date";
 			expressionAttributeValues[":date"] = params.date;
+		}
+		if (params.title) {
+			updateExpression.push("#title = :title");
+			expressionAttributeNames["#title"] = "title";
+			expressionAttributeValues[":title"] = params.title;
 		}
 		if (params.content) {
 			updateExpression.push("#content = :content");
