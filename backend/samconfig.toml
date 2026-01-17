@@ -21,6 +21,7 @@ parameter_overrides = [
     "Project=mindlog",
     "AWSRegion=ap-northeast-1",
     "CognitoUserPoolId=ap-northeast-1_iYuaTtCmN",
-    "CognitoClientId=61fuuuv5ioofu4ngqa5n7olar6"
+    "CognitoClientId=61fuuuv5ioofu4ngqa5n7olar6",
+    "OpenAIAPIKeyName=MindLog-OpenAI-API-Key"
 ]
 

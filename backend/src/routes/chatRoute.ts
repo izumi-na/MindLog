@@ -1,0 +1,41 @@
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { streamText } from "hono/streaming";
+import { ERROR_CODES, ERROR_STATUS_CODE } from "../constants/error";
+import { isAuthenticated } from "../middlewares/auth";
+import type { HonoEnv } from "../types/hono";
+import { toError } from "../utils/error";
+import { logger } from "../utils/logger";
+import { openAIClient } from "../utils/openAI";
+import { errorResponse } from "../utils/response";
+import { PostChatRequestSchema } from "../validators/chat";
+
+export const chatRoute = new Hono<HonoEnv>()
+	// 認証ミドルウェアを設定
+	.use("*", isAuthenticated)
+	.post("/", zValidator("json", PostChatRequestSchema), async (c) => {
+		const params = c.req.valid("json");
+		try {
+			const chatStream = await openAIClient(params.message);
+			return streamText(c, async (stream) => {
+				try {
+					for await (const event of chatStream) {
+						if (event.type === "response.output_text.delta") {
+							await stream.write(event.delta);
+						}
+					}
+				} catch (error) {
+					logger.error("Failed to OpenAI API Request:", toError(error));
+					await stream.write("エラーが発生しました。もう一度お試しください。");
+				} finally {
+					stream.close();
+				}
+			});
+		} catch (error) {
+			logger.error("Failed to initialize OpenAI client:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	});

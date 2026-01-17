@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { chatRoute } from "./routes/chatRoute";
 import { diaryRoute } from "./routes/diaryRoute";
 
 const app = new Hono()
@@ -11,7 +12,8 @@ const app = new Hono()
 			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 		}),
 	)
-	.route("/diaries", diaryRoute);
+	.route("/diaries", diaryRoute)
+	.route("/chat", chatRoute);
 
 export default app;
 
