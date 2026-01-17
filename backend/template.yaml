@@ -28,6 +28,10 @@ Parameters:
     Description: Cognito User Pool ClientId for Authentication
     Type: String
 
+  OpenAIAPIKeyName:
+    Description: OpenAI API KEY name
+    Type: String
+
 Globals:
   Api:
     TracingEnabled: true
@@ -45,6 +49,7 @@ Globals:
           DIARIES_TABLE_NAME: !Ref DiaryTable
           COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
           COGNITO_USERPOOL_CLIENT_ID: !Ref CognitoClientId
+          OPENAI_API_KEY_NAME: !Ref OpenAIAPIKeyName
 
 Resources:
   RestApiGateway:
@@ -74,6 +79,8 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName:
               !Ref DiaryTable
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:MindLog-OpenAI-API-Key-*"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
