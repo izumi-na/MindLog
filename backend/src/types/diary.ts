@@ -8,6 +8,7 @@ export type DiaryItems = {
 	userId: string;
 	diaryId: string;
 	date: string;
+	title?: string;
 	content: string;
 	feeling?: FeelingList;
 	createdAt: string;
