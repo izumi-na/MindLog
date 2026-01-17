@@ -49,7 +49,7 @@ export function DiaryForm() {
 			}
 			toast.success("日記の登録が完了しました。");
 			reset();
-			router.push("/diaries");
+			router.push("/");
 		} catch (error) {
 			if (error instanceof AuthError) {
 				toast.error("認証エラーが発生しました。再度ログインしてください。");

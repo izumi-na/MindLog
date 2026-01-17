@@ -1,7 +1,7 @@
 import { feelingList } from "../../backend/src/constants/diary";
 import type { FeelingList } from "../../backend/src/types/diary";
 
-const FEELING_DEFINITIONS: Record<
+export const FEELING_DEFINITIONS: Record<
 	FeelingList,
 	{ label: string; icon: string }
 > = {
