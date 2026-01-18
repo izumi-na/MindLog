@@ -16,6 +16,10 @@ export type DiaryItems = {
 	updatedAt: string;
 };
 
+export type SimilarityDiaryItems = DiaryItems & {
+	cosineSimilarity: number;
+};
+
 export type CreateDiaryRequest = z.infer<typeof CreateDiaryRequestSchema>;
 
 export type CreateDiaryRequestKeys = keyof CreateDiaryRequest;
