@@ -11,6 +11,7 @@ export type DiaryItems = {
 	title?: string;
 	content: string;
 	feeling?: FeelingList;
+	embedding: number[];
 	createdAt: string;
 	updatedAt: string;
 };
