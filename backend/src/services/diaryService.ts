@@ -14,6 +14,7 @@ import type {
 } from "../types/diary";
 import type { ResultResponse } from "../types/result";
 import { dynamoDBDocClient } from "../utils/dynamodb";
+import { getEmbedding } from "../utils/embeddings";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { errorResponse, successResponse } from "../utils/response";
@@ -52,17 +53,19 @@ export const createDiary = async (
 	params: CreateDiaryRequest,
 ): Promise<ResultResponse<DiaryItems>> => {
 	const timestamp = new Date().toISOString();
-	const diaryData = {
-		userId: userId,
-		diaryId: uuidv7(),
-		date: params.date,
-		title: params.title,
-		content: params.content,
-		feeling: params.feeling,
-		createdAt: timestamp,
-		updatedAt: timestamp,
-	};
 	try {
+		const embeddingData = await getEmbedding(params.content);
+		const diaryData = {
+			userId: userId,
+			diaryId: uuidv7(),
+			date: params.date,
+			title: params.title,
+			content: params.content,
+			feeling: params.feeling,
+			embedding: embeddingData,
+			createdAt: timestamp,
+			updatedAt: timestamp,
+		};
 		await dynamoDBDocClient.send(
 			new PutCommand({
 				TableName: process.env.DIARIES_TABLE_NAME,
@@ -159,9 +162,9 @@ export const updateDiary = async (
 		const updateExpression = [];
 		const expressionAttributeNames: Record<
 			string,
-			CreateDiaryRequestKeys | "updatedAt"
+			CreateDiaryRequestKeys | "updatedAt" | "embedding"
 		> = {};
-		const expressionAttributeValues: Record<string, string> = {};
+		const expressionAttributeValues: Record<string, string | number[]> = {};
 
 		const timestamp = new Date().toISOString();
 
@@ -179,6 +182,12 @@ export const updateDiary = async (
 			updateExpression.push("#content = :content");
 			expressionAttributeNames["#content"] = "content";
 			expressionAttributeValues[":content"] = params.content;
+
+			// embeddingデータも更新を実施
+			const embeddingData = await getEmbedding(params.content);
+			updateExpression.push("#embedding = :embedding");
+			expressionAttributeNames["#embedding"] = "embedding";
+			expressionAttributeValues[":embedding"] = embeddingData;
 		}
 		if (params.feeling) {
 			updateExpression.push("#feeling = :feeling");

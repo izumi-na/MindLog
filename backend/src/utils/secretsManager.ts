@@ -5,11 +5,17 @@ import {
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 
+const client = new SecretsManagerClient({
+	region: process.env.REGION,
+});
+
+const cachedSecrets: Record<string, string> = {};
+
 export const getSecretValue = async (secretName: string) => {
+	if (cachedSecrets[secretName]) {
+		return cachedSecrets[secretName];
+	}
 	try {
-		const client = new SecretsManagerClient({
-			region: process.env.REGION,
-		});
 		const response = await client.send(
 			new GetSecretValueCommand({
 				SecretId: secretName,
@@ -18,7 +24,8 @@ export const getSecretValue = async (secretName: string) => {
 		if (!response.SecretString) {
 			throw new Error(`Failed to get SecretString:${secretName}`);
 		}
-		return response.SecretString;
+		cachedSecrets[secretName] = response.SecretString;
+		return cachedSecrets[secretName];
 	} catch (error) {
 		logger.error("Failed to get SecretString Request:", toError(error));
 		throw error;

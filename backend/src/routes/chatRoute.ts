@@ -6,7 +6,7 @@ import { isAuthenticated } from "../middlewares/auth";
 import type { HonoEnv } from "../types/hono";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
-import { openAIClient } from "../utils/openAI";
+import { openAIChatClient } from "../utils/openAIChatClient";
 import { errorResponse } from "../utils/response";
 import { PostChatRequestSchema } from "../validators/chat";
 
@@ -16,7 +16,7 @@ export const chatRoute = new Hono<HonoEnv>()
 	.post("/", zValidator("json", PostChatRequestSchema), async (c) => {
 		const params = c.req.valid("json");
 		try {
-			const chatStream = await openAIClient(params.message);
+			const chatStream = await openAIChatClient(params.message);
 			return streamText(c, async (stream) => {
 				try {
 					for await (const event of chatStream) {
