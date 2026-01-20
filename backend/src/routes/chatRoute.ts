@@ -20,8 +20,10 @@ export const chatRoute = new Hono<HonoEnv>()
 		const userId = c.get("userId");
 		const params = c.req.valid("json");
 		try {
-			const inputEmbedding = await getEmbedding(params.message);
-			const result = await getDiaries(userId);
+			const [inputEmbedding, result] = await Promise.all([
+				getEmbedding(params.message),
+				getDiaries(userId),
+			]);
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}

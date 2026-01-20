@@ -58,22 +58,29 @@ Resources:
       Name: !Sub "${NodeEnv}-${Project}-Api"
       StageName: !Ref NodeEnv
       Cors:
-        AllowOrigin: "'http://localhost:3000'"
-        AllowHeaders: "'Content-Type, Authorization'"
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+          AllowOrigin: "'http://localhost:3000'"
+          AllowHeaders: "'Content-Type, Authorization'"
+          AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      DefinitionBody:
+        openapi: '3.0'
+        info:
+          title: "MindLog API"
+          version: "1.0.0"
+        paths:
+          /{proxy+}:
+            x-amazon-apigateway-any-method:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                passthroughBehavior: when_no_match
+                responseTransferMode: STREAM
+                type: aws_proxy
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2021-11-15/functions/${ApiFunction.Arn}/response-streaming-invocations"
 
   ApiFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${NodeEnv}-${Project}-Api-Function"
       CodeUri: src
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Method: ANY
-            Path: /{proxy+}
-            RestApiId: !Ref RestApiGateway
       Handler: handler.handler
       Policies:
         - DynamoDBCrudPolicy:
