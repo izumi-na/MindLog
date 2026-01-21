@@ -47,6 +47,8 @@ Globals:
           PROJECT: !Ref Project
           REGION: !Ref AWSRegion
           DIARIES_TABLE_NAME: !Ref DiaryTable
+          CHATROOMS_TABLE_NAME: !Ref ChatRoomsTable
+          CHATMESSAGES_TABLE_NAME: !Ref ChatMessagesTable
           COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
           COGNITO_USERPOOL_CLIENT_ID: !Ref CognitoClientId
           OPENAI_API_KEY_NAME: !Ref OpenAIAPIKeyName
@@ -86,6 +88,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName:
               !Ref DiaryTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref ChatRoomsTable
+        - DynamoDBCrudPolicy:
+            TableName:
+              !Ref ChatMessagesTable
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:MindLog-OpenAI-API-Key-*"
     Metadata:
@@ -127,6 +135,46 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+
+  ChatRoomsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${NodeEnv}-${Project}-ChatRooms-Table"
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: roomId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: roomId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
+  ChatMessagesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${NodeEnv}-${Project}-ChatMessages-Table"
+      AttributeDefinitions:
+        - AttributeName: roomId
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: roomId
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
 
 Outputs:
   RestApiGatewayUrl:
