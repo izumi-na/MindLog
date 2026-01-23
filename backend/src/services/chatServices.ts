@@ -1,4 +1,4 @@
-import { PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v7 as uuidv7 } from "uuid";
 import { ERROR_CODES } from "../constants/error";
 import type { ChatMessageItems, ChatRoomItems } from "../types/chat";
@@ -75,14 +75,29 @@ export const addMessage = async (
 	}
 };
 
-// チャットルームのタイトルを変更
+// チャットルームを更新
 export const updateChatRoom = async (
 	userId: string,
 	roomId: string,
-	title: string,
+	title?: string,
 ): Promise<ResultResponse<ChatRoomItems>> => {
 	try {
+		// 更新に使用するパラメータを動的に組み立て
+		// リクエストで指定されたフィールドのみ更新する
+		const updateExpression = [];
+		const expressionAttributeNames: Record<string, "title" | "updatedAt"> = {};
+		const expressionAttributeValues: Record<string, string> = {};
 		const timestamp = new Date().toISOString();
+
+		if (title) {
+			updateExpression.push("#title = :title");
+			expressionAttributeNames["#title"] = "title";
+			expressionAttributeValues[":title"] = title;
+		}
+		// updatedAtは常時更新
+		updateExpression.push("#updatedAt = :updatedAt");
+		expressionAttributeNames["#updatedAt"] = "updatedAt";
+		expressionAttributeValues[":updatedAt"] = timestamp;
 
 		const result = await dynamoDBDocClient.send(
 			new UpdateCommand({
@@ -91,24 +106,17 @@ export const updateChatRoom = async (
 					userId,
 					roomId,
 				},
-				UpdateExpression: "set #title = :title, #updatedAt = :updatedAt",
-				ExpressionAttributeNames: {
-					"#title": "title",
-					"#updatedAt": "updatedAt",
-				},
-				ExpressionAttributeValues: {
-					":title": title,
-					":updatedAt": timestamp,
-				},
+				UpdateExpression: `set ${updateExpression.join(", ")}`,
+				ExpressionAttributeNames: expressionAttributeNames,
+				ExpressionAttributeValues: expressionAttributeValues,
 				ReturnValues: "ALL_NEW",
 				ConditionExpression:
-					"attribute_exists(roomId) AND attribute_exists(createdAt)",
+					"attribute_exists(userId) AND attribute_exists(roomId)",
 			}),
 		);
 		logger.info("Successfully to update chatRoom in DynamoDB:", {
 			userId,
 			roomId,
-			title,
 		});
 		return successResponse(result.Attributes as ChatRoomItems);
 	} catch (error) {
@@ -117,11 +125,43 @@ export const updateChatRoom = async (
 			logger.info("Not found the chatRoom for update in DynamoDB:", {
 				userId,
 				roomId,
-				title,
 			});
 			return errorResponse(ERROR_CODES.CHATROOM_NOT_FOUND);
 		}
 		logger.error("Failed to update chatRoom in DynamoDB:", err);
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
+};
+
+// チャットルーム取得
+export const getChatRoom = async (
+	userId: string,
+	roomId: string,
+): Promise<ResultResponse<ChatRoomItems>> => {
+	try {
+		const result = await dynamoDBDocClient.send(
+			new GetCommand({
+				TableName: process.env.CHATROOMS_TABLE_NAME,
+				Key: {
+					userId,
+					roomId,
+				},
+			}),
+		);
+		if (!result.Item) {
+			logger.info("Not found the roomId in DynamoDB:", {
+				userId,
+				roomId,
+			});
+			return errorResponse(ERROR_CODES.CHATROOM_NOT_FOUND);
+		}
+		logger.info("Successfully to get roomId in DynamoDB:", {
+			userId,
+			roomId,
+		});
+		return successResponse(result.Item as ChatRoomItems);
+	} catch (error) {
+		logger.error("Failed to get roomId in DynamoDB:", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };

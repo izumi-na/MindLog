@@ -6,6 +6,7 @@ import { isAuthenticated } from "../middlewares/auth";
 import {
 	addMessage,
 	createChatRoom,
+	getChatRoom,
 	updateChatRoom,
 } from "../services/chatServices";
 import { getDiaries } from "../services/diaryService";
@@ -17,6 +18,7 @@ import { logger } from "../utils/logger";
 import { openAIChatClient, openAITitleClient } from "../utils/openAI";
 import { errorResponse } from "../utils/response";
 import { PostChatRequestSchema } from "../validators/chat";
+import { isUuidValidateV7 } from "../validators/common";
 
 export const chatRoute = new Hono<HonoEnv>()
 	// 認証ミドルウェアを設定
@@ -117,4 +119,112 @@ export const chatRoute = new Hono<HonoEnv>()
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
 			);
 		}
-	});
+	})
+	// 既存チャットルームにメッセージ追加
+	.post(
+		"/rooms/:roomId",
+		zValidator("json", PostChatRequestSchema),
+		async (c) => {
+			const userId = c.get("userId");
+			const roomId = c.req.param("roomId");
+			const isValid = isUuidValidateV7(roomId);
+			if (!isValid) {
+				return c.json(
+					errorResponse(ERROR_CODES.INVALID_INPUT_ERROR),
+					ERROR_STATUS_CODE[ERROR_CODES.INVALID_INPUT_ERROR],
+				);
+			}
+			const params = c.req.valid("json");
+			try {
+				// チャットルームが存在するか確認
+				const resultGetChatRoom = await getChatRoom(userId, roomId);
+				if (!resultGetChatRoom.success) {
+					return c.json(
+						resultGetChatRoom,
+						ERROR_STATUS_CODE[resultGetChatRoom.error.code],
+					);
+				}
+				// 入力されたメッセージをベクトル化、既存の日記一覧を取得
+				const [inputEmbedding, diaries] = await Promise.all([
+					getEmbedding(params.message),
+					getDiaries(userId),
+				]);
+				if (!diaries.success) {
+					return c.json(diaries, ERROR_STATUS_CODE[diaries.error.code]);
+				}
+				// 入力されたメッセージとのコサイン類似度が高い日記を最大５つ取得
+				const highCosineSimilarityItems = getHighCosineSimilarityItems(
+					inputEmbedding,
+					diaries.data,
+				);
+				// dynamoDBにユーザーから入力されたメッセージを保存
+				const resultAddUserMessage = await addMessage(
+					userId,
+					roomId,
+					"user",
+					params.message,
+				);
+				if (!resultAddUserMessage.success) {
+					return c.json(
+						resultAddUserMessage,
+						ERROR_STATUS_CODE[resultAddUserMessage.error.code],
+					);
+				}
+				// OpenAIに入力されたメッセージとのコサイン類似度が高い日記（最大５つ）を送信
+				const chatStream = await openAIChatClient(
+					params.message,
+					highCosineSimilarityItems,
+				);
+				return streamText(c, async (stream) => {
+					try {
+						for await (const event of chatStream) {
+							// OpenAIがレスポンス作成中の場合はstreamに書き込む
+							if (event.type === "response.output_text.delta") {
+								await stream.write(event.delta);
+							}
+							// OpenAIのレスポンスが完了した場合はdynamoDBにOpenAIのレスポンス全体を保存してreturn
+							if (event.type === "response.output_text.done") {
+								const content = event.text;
+								// dynamoDBにOpenAIのレスポンス全体を保存
+								const resultAddOpenAIMessage = await addMessage(
+									userId,
+									roomId,
+									"assistant",
+									content,
+								);
+								if (!resultAddOpenAIMessage.success) {
+									throw resultAddOpenAIMessage;
+								}
+								// チャットルームのupdateAtを更新
+								const resultUpdateChatRoom = await updateChatRoom(
+									userId,
+									roomId,
+								);
+								if (!resultUpdateChatRoom.success) {
+									// タイムスタンプ更新失敗は致命的ではないため、エラーにはしない
+									logger.warn("Failed to update chatRoom updatedAt:", {
+										userId,
+										roomId,
+									});
+								}
+								return;
+							}
+						}
+					} catch (error) {
+						logger.error("Failed to OpenAI API Request:", toError(error));
+						await stream.write(
+							"エラーが発生しました。もう一度お試しください。",
+						);
+					} finally {
+						stream.close();
+					}
+				});
+			} catch (error) {
+				logger.error("Failed to initialize OpenAI client:", toError(error));
+				return c.json(
+					errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+					ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+				);
+			}
+		},
+	);
