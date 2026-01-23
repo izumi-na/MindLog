@@ -191,10 +191,40 @@ export const getChatRooms = async (
 		}
 		logger.info("Successfully to get chatRooms in DynamoDB:", {
 			userId,
+			count: result.Items.length,
 		});
 		return successResponse(result.Items as ChatRoomItems[]);
 	} catch (error) {
 		logger.error("Failed to get chatRooms in DynamoDB:", toError(error));
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
+};
+
+// チャットルームのメッセージ一覧を取得
+export const getChatMessages = async (
+	roomId: string,
+): Promise<ResultResponse<ChatMessageItems[]>> => {
+	try {
+		const result = await dynamoDBDocClient.send(
+			new QueryCommand({
+				TableName: process.env.CHATMESSAGES_TABLE_NAME,
+				KeyConditionExpression: "roomId=:roomId",
+				ExpressionAttributeValues: { ":roomId": roomId },
+			}),
+		);
+		if (!result.Items) {
+			logger.info("Not found the chatMessages in DynamoDB:", {
+				roomId,
+			});
+			return successResponse([]);
+		}
+		logger.info("Successfully to get chatMessages in DynamoDB:", {
+			roomId,
+			count: result.Items.length,
+		});
+		return successResponse(result.Items as ChatMessageItems[]);
+	} catch (error) {
+		logger.error("Failed to get chatMessages in DynamoDB:", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
