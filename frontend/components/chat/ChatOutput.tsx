@@ -1,23 +1,27 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ChatMessage } from "@/types/chat";
+import type { ChatRoomMessageItems } from "@/types/chat";
 import { Card, CardContent } from "../ui/card";
 
-export function ChatOutput({ chatMessages }: { chatMessages: ChatMessage[] }) {
-	return chatMessages.map((chatMessage) =>
-		chatMessage.role === "user" ? (
-			<div key={chatMessage.id} className="flex justify-end">
+export function ChatOutput({
+	chatMessages,
+}: {
+	chatMessages: ChatRoomMessageItems[];
+}) {
+	return chatMessages.map((chatRoomMessage) =>
+		chatRoomMessage.role === "user" ? (
+			<div key={chatRoomMessage.chatMessageId} className="flex justify-end">
 				<Card>
-					<CardContent>{chatMessage.content}</CardContent>
+					<CardContent>{chatRoomMessage.content}</CardContent>
 				</Card>
 			</div>
 		) : (
 			<div
-				key={chatMessage.id}
+				key={chatRoomMessage.chatMessageId}
 				className="prose prose-p:m-0 prose-ul:m-0 prose-ol:my-2 prose-li:m-0.5 p-6"
 			>
 				<ReactMarkdown remarkPlugins={[remarkGfm]}>
-					{chatMessage.content}
+					{chatRoomMessage.content}
 				</ReactMarkdown>
 			</div>
 		),

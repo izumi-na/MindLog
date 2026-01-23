@@ -1,24 +1,41 @@
+import { AuthError } from "aws-amplify/auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { v7 as uuidv7 } from "uuid";
 import { getAuthClient } from "@/lib/api/api-client";
-import type { ChatMessage } from "@/types/chat";
+import type { ChatRoomItems, ChatRoomMessageItems } from "@/types/chat";
 import type { PostChatRequest } from "../../backend/src/types/chat";
+import { useSignOut } from "./useSignOut";
 
 export const useChat = () => {
-	const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+	const { handleSignOut } = useSignOut();
+	const [chatMessages, setChatMessages] = useState<ChatRoomMessageItems[]>([]);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [chatRooms, setChatRooms] = useState<ChatRoomItems>([]);
+	const [isChatLoading, setIsChatLoading] = useState(false);
+	const [selectRoomId, setSelectRoomId] = useState("");
 
-	const sendChatMessage = async (data: PostChatRequest) => {
+	// チャットメッセージ送信時
+	const sendChatMessage = async (data: PostChatRequest, roomId: string) => {
 		setIsGenerating(true);
 		try {
 			setChatMessages((prev) => [
 				...prev,
-				{ id: uuidv7(), role: "user", content: data.message },
+				{
+					roomId,
+					createdAt: new Date().toISOString(),
+					userId: "",
+					chatMessageId: uuidv7(),
+					role: "user",
+					content: data.message,
+				},
 			]);
 			const authClient = await getAuthClient();
-			const res = await authClient.chat.$post({
+			const res = await authClient.chat.rooms[":roomId"].$post({
 				json: data,
+				param: {
+					roomId,
+				},
 			});
 			const reader = res.body?.getReader();
 			if (!reader) return;
@@ -33,9 +50,13 @@ export const useChat = () => {
 				if (!value) continue;
 				const text = decoder.decode(value);
 				setChatMessages((prev) => {
-					if (prev.some((prevItem) => prevItem.id === assistantMessageId)) {
+					if (
+						prev.some(
+							(prevItem) => prevItem.chatMessageId === assistantMessageId,
+						)
+					) {
 						return prev.map((prevItem) =>
-							prevItem.id === assistantMessageId
+							prevItem.chatMessageId === assistantMessageId
 								? { ...prevItem, content: prevItem.content + text }
 								: prevItem,
 						);
@@ -43,7 +64,10 @@ export const useChat = () => {
 					return [
 						...prev,
 						{
-							id: assistantMessageId,
+							roomId: roomId,
+							createdAt: new Date().toISOString(),
+							userId: "",
+							chatMessageId: assistantMessageId,
 							role: "assistant",
 							content: text,
 						},
@@ -55,8 +79,78 @@ export const useChat = () => {
 			toast.error("レスポンスの生成に失敗しました。再度実行してください。");
 		} finally {
 			setIsGenerating(false);
+			await fetchChatRoomMessages(roomId);
+			await fetchChatRooms();
 		}
 	};
 
-	return { sendChatMessage, chatMessages, isGenerating };
+	// サイドメニューに表示するチャットルーム一覧を取得
+	const fetchChatRooms = async () => {
+		setIsChatLoading(true);
+		try {
+			const authClient = await getAuthClient();
+			const res = await authClient.chat.rooms.$get();
+			if (!res.ok) {
+				throw new Error("Failed to Fetch ChatRoomsData");
+			}
+			const result = await res.json();
+			if (!result) {
+				throw new Error("Failed to Parse ChatRoomsData");
+			}
+			if (result.success) {
+				setChatRooms(result.data);
+			}
+		} catch (error) {
+			if (error instanceof AuthError) {
+				toast.error("認証エラーが発生しました。再度ログインしてください。");
+				await handleSignOut();
+				return;
+			}
+			toast.error("データの取得に失敗しました。画面をリロードしてください。");
+		} finally {
+			setIsChatLoading(false);
+		}
+	};
+
+	// チャットルームのメッセージ一覧を取得
+	const fetchChatRoomMessages = async (roomId: string) => {
+		setSelectRoomId(roomId);
+		try {
+			const authClient = await getAuthClient();
+			const res = await authClient.chat.rooms[":roomId"].messages.$get({
+				param: {
+					roomId,
+				},
+			});
+			if (!res.ok) {
+				throw new Error("Failed to Fetch ChatRoomMessages");
+			}
+			const result = await res.json();
+			console.log(result);
+			if (!result) {
+				throw new Error("Failed to Parse ChatRoomMessages");
+			}
+			if (result.success) {
+				setChatMessages(result.data);
+			}
+		} catch (error) {
+			if (error instanceof AuthError) {
+				toast.error("認証エラーが発生しました。再度ログインしてください。");
+				await handleSignOut();
+				return;
+			}
+			toast.error("データの取得に失敗しました。画面をリロードしてください。");
+		}
+	};
+
+	return {
+		sendChatMessage,
+		chatMessages,
+		isGenerating,
+		fetchChatRooms,
+		chatRooms,
+		isChatLoading,
+		fetchChatRoomMessages,
+		selectRoomId,
+	};
 };

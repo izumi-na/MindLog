@@ -8,9 +8,11 @@ import { Button } from "../ui/button";
 export const ChatInput = ({
 	sendChatMessage,
 	isGenerating,
+	selectRoomId,
 }: {
-	sendChatMessage: (data: { message: string }) => Promise<void>;
+	sendChatMessage: (data: PostChatRequest, roomId: string) => Promise<void>;
 	isGenerating: boolean;
+	selectRoomId: string;
 }) => {
 	const {
 		register,
@@ -22,7 +24,7 @@ export const ChatInput = ({
 	});
 
 	const onSubmit = async (data: PostChatRequest) => {
-		await sendChatMessage(data);
+		await sendChatMessage(data, selectRoomId);
 		reset();
 	};
 
