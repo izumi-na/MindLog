@@ -3,14 +3,18 @@ import { Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { ERROR_CODES, ERROR_STATUS_CODE } from "../constants/error";
 import { isAuthenticated } from "../middlewares/auth";
-import { addMessage, createChatRoom } from "../services/chatServices";
+import {
+	addMessage,
+	createChatRoom,
+	updateChatRoom,
+} from "../services/chatServices";
 import { getDiaries } from "../services/diaryService";
 import type { HonoEnv } from "../types/hono";
 import { getHighCosineSimilarityItems } from "../utils/cosineSimilarity";
 import { getEmbedding } from "../utils/embeddings";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
-import { openAIChatClient } from "../utils/openAIChatClient";
+import { openAIChatClient, openAITitleClient } from "../utils/openAI";
 import { errorResponse } from "../utils/response";
 import { PostChatRequestSchema } from "../validators/chat";
 
@@ -81,6 +85,20 @@ export const chatRoute = new Hono<HonoEnv>()
 							);
 							if (!resultAddOpenAIMessage.success) {
 								throw resultAddOpenAIMessage;
+							}
+							// 初回のチャットメッセージ内容からチャットルームタイトルを生成
+							const updateTitle = await openAITitleClient(
+								params.message,
+								content,
+							);
+							// チャットルームのタイトル更新
+							const resultUpdateChatRoom = await updateChatRoom(
+								userId,
+								resultCreateChatRoom.data.roomId,
+								updateTitle,
+							);
+							if (!resultUpdateChatRoom.success) {
+								throw resultUpdateChatRoom;
 							}
 							return;
 						}
