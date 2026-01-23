@@ -6,6 +6,7 @@ import { isAuthenticated } from "../middlewares/auth";
 import {
 	addMessage,
 	createChatRoom,
+	getChatMessages,
 	getChatRoom,
 	getChatRooms,
 	updateChatRoom,
@@ -246,6 +247,42 @@ export const chatRoute = new Hono<HonoEnv>()
 			return c.json(sortChatRooms, 200);
 		} catch (error) {
 			logger.error("Failed to getChatRooms request:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	})
+	// チャットルームのメッセージ一覧取得
+	.get("/rooms/:roomId/messages", async (c) => {
+		const userId = c.get("userId");
+		const roomId = c.req.param("roomId");
+		const isValid = isUuidValidateV7(roomId);
+		if (!isValid) {
+			return c.json(
+				errorResponse(ERROR_CODES.INVALID_INPUT_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INVALID_INPUT_ERROR],
+			);
+		}
+		try {
+			// チャットルームが存在するか確認
+			const resultGetChatRoom = await getChatRoom(userId, roomId);
+			if (!resultGetChatRoom.success) {
+				return c.json(
+					resultGetChatRoom,
+					ERROR_STATUS_CODE[resultGetChatRoom.error.code],
+				);
+			}
+			const resultGetChatMessages = await getChatMessages(roomId);
+			if (!resultGetChatMessages.success) {
+				return c.json(
+					resultGetChatMessages,
+					ERROR_STATUS_CODE[resultGetChatMessages.error.code],
+				);
+			}
+			return c.json(resultGetChatMessages.data, 200);
+		} catch (error) {
+			logger.error("Failed to getChatMessages request:", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
