@@ -13,10 +13,8 @@ import type { HonoEnv } from "../types/hono";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { errorResponse } from "../utils/response";
-import {
-	CreateDiaryRequestSchema,
-	isUuidValidateV7,
-} from "../validators/diary";
+import { isUuidValidateV7 } from "../validators/common";
+import { CreateDiaryRequestSchema } from "../validators/diary";
 
 export const diaryRoute = new Hono<HonoEnv>()
 	// 認証ミドルウェアを設定

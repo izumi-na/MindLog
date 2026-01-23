@@ -1,4 +1,3 @@
-import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import z from "zod";
 import { feelingList } from "../constants/diary";
 
@@ -13,7 +12,3 @@ export const CreateDiaryRequestSchema = z.object({
 		.max(10000, "10000字以内で入力してください"),
 	feeling: z.enum(feelingList).optional(),
 });
-
-export function isUuidValidateV7(uuid: string): boolean {
-	return uuidValidate(uuid) && uuidVersion(uuid) === 7;
-}
