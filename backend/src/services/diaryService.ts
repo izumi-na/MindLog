@@ -33,7 +33,10 @@ export const getDiaries = async (
 				},
 			}),
 		);
-		if (result.Items === undefined) {
+		if (!result.Items) {
+			logger.info("Not found the diaries in DynamoDB:", {
+				userId,
+			});
 			return successResponse([]);
 		}
 		logger.info("Successfully to fetch diaries from DynamoDB", {

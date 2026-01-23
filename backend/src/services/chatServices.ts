@@ -1,4 +1,9 @@
-import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+	GetCommand,
+	PutCommand,
+	QueryCommand,
+	UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { v7 as uuidv7 } from "uuid";
 import { ERROR_CODES } from "../constants/error";
 import type { ChatMessageItems, ChatRoomItems } from "../types/chat";
@@ -133,7 +138,7 @@ export const updateChatRoom = async (
 	}
 };
 
-// チャットルーム取得
+// 特定のチャットルーム取得
 export const getChatRoom = async (
 	userId: string,
 	roomId: string,
@@ -162,6 +167,34 @@ export const getChatRoom = async (
 		return successResponse(result.Item as ChatRoomItems);
 	} catch (error) {
 		logger.error("Failed to get roomId in DynamoDB:", toError(error));
+		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
+	}
+};
+
+// チャットルーム一覧を取得
+export const getChatRooms = async (
+	userId: string,
+): Promise<ResultResponse<ChatRoomItems[]>> => {
+	try {
+		const result = await dynamoDBDocClient.send(
+			new QueryCommand({
+				TableName: process.env.CHATROOMS_TABLE_NAME,
+				KeyConditionExpression: "userId=:userId",
+				ExpressionAttributeValues: { ":userId": userId },
+			}),
+		);
+		if (!result.Items) {
+			logger.info("Not found the chatRooms in DynamoDB:", {
+				userId,
+			});
+			return successResponse([]);
+		}
+		logger.info("Successfully to get chatRooms in DynamoDB:", {
+			userId,
+		});
+		return successResponse(result.Items as ChatRoomItems[]);
+	} catch (error) {
+		logger.error("Failed to get chatRooms in DynamoDB:", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
