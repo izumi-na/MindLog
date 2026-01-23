@@ -9,6 +9,7 @@ export const ERROR_CODES = {
 
 	// Not Found（404）
 	DIARY_NOT_FOUND: "DIARY_NOT_FOUND",
+	CHATROOM_NOT_FOUND: "CHATROOM_NOT_FOUND",
 
 	// Internal Server Error（500）
 	INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
@@ -26,6 +27,7 @@ export const ERROR_MESSAGES = {
 
 	// Not Found（404）
 	[ERROR_CODES.DIARY_NOT_FOUND]: "日記が見つかりません",
+	[ERROR_CODES.CHATROOM_NOT_FOUND]: "チャットルームが見つかりません",
 
 	// Internal Server Error（500）
 	[ERROR_CODES.INTERNAL_SERVER_ERROR]: "内部エラーが発生しました",
@@ -42,6 +44,7 @@ export const ERROR_STATUS_CODE: Record<ErrorCode, ContentfulStatusCode> = {
 
 	// Not Found（404）
 	[ERROR_CODES.DIARY_NOT_FOUND]: 404,
+	[ERROR_CODES.CHATROOM_NOT_FOUND]: 404,
 
 	// Internal Server Error（500）
 	[ERROR_CODES.INTERNAL_SERVER_ERROR]: 500,
