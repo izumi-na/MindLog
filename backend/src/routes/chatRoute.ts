@@ -18,7 +18,7 @@ import { getEmbedding } from "../utils/embeddings";
 import { toError } from "../utils/error";
 import { logger } from "../utils/logger";
 import { openAIChatClient, openAITitleClient } from "../utils/openAI";
-import { errorResponse } from "../utils/response";
+import { errorResponse, successResponse } from "../utils/response";
 import { PostChatRequestSchema } from "../validators/chat";
 import { isUuidValidateV7 } from "../validators/common";
 
@@ -244,7 +244,7 @@ export const chatRoute = new Hono<HonoEnv>()
 			const sortChatRooms = resultGetChatRooms.data.sort((a, b) =>
 				b.updatedAt.localeCompare(a.updatedAt),
 			);
-			return c.json(sortChatRooms, 200);
+			return c.json(successResponse(sortChatRooms), 200);
 		} catch (error) {
 			logger.error("Failed to getChatRooms request:", toError(error));
 			return c.json(
@@ -280,7 +280,7 @@ export const chatRoute = new Hono<HonoEnv>()
 					ERROR_STATUS_CODE[resultGetChatMessages.error.code],
 				);
 			}
-			return c.json(resultGetChatMessages.data, 200);
+			return c.json(resultGetChatMessages, 200);
 		} catch (error) {
 			logger.error("Failed to getChatMessages request:", toError(error));
 			return c.json(
