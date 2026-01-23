@@ -7,6 +7,7 @@ import {
 	addMessage,
 	createChatRoom,
 	getChatRoom,
+	getChatRooms,
 	updateChatRoom,
 } from "../services/chatServices";
 import { getDiaries } from "../services/diaryService";
@@ -227,4 +228,27 @@ export const chatRoute = new Hono<HonoEnv>()
 				);
 			}
 		},
-	);
+	)
+	// チャットルーム一覧取得
+	.get("/rooms", async (c) => {
+		const userId = c.get("userId");
+		try {
+			const resultGetChatRooms = await getChatRooms(userId);
+			if (!resultGetChatRooms.success) {
+				return c.json(
+					resultGetChatRooms,
+					ERROR_STATUS_CODE[resultGetChatRooms.error.code],
+				);
+			}
+			const sortChatRooms = resultGetChatRooms.data.sort((a, b) =>
+				b.updatedAt.localeCompare(a.updatedAt),
+			);
+			return c.json(sortChatRooms, 200);
+		} catch (error) {
+			logger.error("Failed to getChatRooms request:", toError(error));
+			return c.json(
+				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
+				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
+			);
+		}
+	});
