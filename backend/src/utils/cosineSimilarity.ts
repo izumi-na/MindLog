@@ -8,7 +8,7 @@ export const getCosineSimilarity = (x: number[], y: number[]) => {
 	return dot / (normX * normY);
 };
 
-// コサイン類似度が0.5以上の日記上位５個を抽出
+// コサイン類似度が0.3以上の日記上位５個を抽出
 export const getHighCosineSimilarityItems = (
 	inputEmbedding: number[],
 	storedDiaries: DiaryItems[],
@@ -25,7 +25,7 @@ export const getHighCosineSimilarityItems = (
 	});
 
 	const similarityDiariesList = similarityDiaries
-		.filter((diary) => diary.cosineSimilarity > 0.5)
+		.filter((diary) => diary.cosineSimilarity > 0.3)
 		.sort((a, b) => b.cosineSimilarity - a.cosineSimilarity)
 		.slice(0, 5);
 	logger.info("Successfully to get similarityDiariesList", {
