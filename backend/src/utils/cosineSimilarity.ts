@@ -1,4 +1,5 @@
 import type { DiaryItems } from "../types/diary";
+import { logger } from "./logger";
 
 export const getCosineSimilarity = (x: number[], y: number[]) => {
 	const dot = x.reduce((sum, prev, i) => sum + prev * y[i], 0);
@@ -23,8 +24,12 @@ export const getHighCosineSimilarityItems = (
 		};
 	});
 
-	return similarityDiaries
+	const similarityDiariesList = similarityDiaries
 		.filter((diary) => diary.cosineSimilarity > 0.5)
 		.sort((a, b) => b.cosineSimilarity - a.cosineSimilarity)
 		.slice(0, 5);
+	logger.info("Successfully to get similarityDiariesList", {
+		similarityDiariesCount: similarityDiariesList.length,
+	});
+	return similarityDiariesList;
 };

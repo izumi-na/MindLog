@@ -27,7 +27,7 @@ export const getSecretValue = async (secretName: string) => {
 		cachedSecrets[secretName] = response.SecretString;
 		return cachedSecrets[secretName];
 	} catch (error) {
-		logger.error("Failed to get SecretString Request:", toError(error));
+		logger.error("Failed to get SecretString Request", toError(error));
 		throw error;
 	}
 };

@@ -21,7 +21,7 @@ export const createOpenAIClient = async () => {
 		openAIClient = new OpenAI({ apiKey });
 		return openAIClient;
 	} catch (error) {
-		logger.error("Failed to create OpenAIClient:", toError(error));
+		logger.error("Failed to create OpenAIClient", toError(error));
 		throw error;
 	}
 };

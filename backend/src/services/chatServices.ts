@@ -32,13 +32,13 @@ export const createChatRoom = async (
 				Item: chatRoomData,
 			}),
 		);
-		logger.info("Successfully to create chatRoom in DynamoDB:", {
+		logger.info("Successfully to create chatRoom in DynamoDB", {
 			userId,
 			roomId: chatRoomData.roomId,
 		});
 		return successResponse(chatRoomData);
 	} catch (error) {
-		logger.error("Failed to create chatRoom in DynamoDB:", toError(error));
+		logger.error("Failed to create chatRoom in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -66,14 +66,14 @@ export const addMessage = async (
 				Item: chatMessageData,
 			}),
 		);
-		logger.info(`Successfully to add ${role}'s chatMessage in DynamoDB:`, {
+		logger.info(`Successfully to add ${role}'s chatMessage in DynamoDB`, {
 			userId,
 			roomId: chatMessageData.roomId,
 		});
 		return successResponse(chatMessageData);
 	} catch (error) {
 		logger.error(
-			`Failed to add ${role}'s chatMessage in DynamoDB:`,
+			`Failed to add ${role}'s chatMessage in DynamoDB`,
 			toError(error),
 		);
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
@@ -119,7 +119,7 @@ export const updateChatRoom = async (
 					"attribute_exists(userId) AND attribute_exists(roomId)",
 			}),
 		);
-		logger.info("Successfully to update chatRoom in DynamoDB:", {
+		logger.info("Successfully to update chatRoom in DynamoDB", {
 			userId,
 			roomId,
 		});
@@ -127,13 +127,13 @@ export const updateChatRoom = async (
 	} catch (error) {
 		const err = toError(error);
 		if (err.name === "ConditionalCheckFailedException") {
-			logger.info("Not found the chatRoom for update in DynamoDB:", {
+			logger.info("Not found the chatRoom for update in DynamoDB", {
 				userId,
 				roomId,
 			});
 			return errorResponse(ERROR_CODES.CHATROOM_NOT_FOUND);
 		}
-		logger.error("Failed to update chatRoom in DynamoDB:", err);
+		logger.error("Failed to update chatRoom in DynamoDB", err);
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -154,19 +154,19 @@ export const getChatRoom = async (
 			}),
 		);
 		if (!result.Item) {
-			logger.info("Not found the roomId in DynamoDB:", {
+			logger.info("Not found the roomId in DynamoDB", {
 				userId,
 				roomId,
 			});
 			return errorResponse(ERROR_CODES.CHATROOM_NOT_FOUND);
 		}
-		logger.info("Successfully to get roomId in DynamoDB:", {
+		logger.info("Successfully to get roomId in DynamoDB", {
 			userId,
 			roomId,
 		});
 		return successResponse(result.Item as ChatRoomItems);
 	} catch (error) {
-		logger.error("Failed to get roomId in DynamoDB:", toError(error));
+		logger.error("Failed to get roomId in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -184,18 +184,18 @@ export const getChatRooms = async (
 			}),
 		);
 		if (!result.Items) {
-			logger.info("Not found the chatRooms in DynamoDB:", {
+			logger.info("Not found the chatRooms in DynamoDB", {
 				userId,
 			});
 			return successResponse([]);
 		}
-		logger.info("Successfully to get chatRooms in DynamoDB:", {
+		logger.info("Successfully to get chatRooms in DynamoDB", {
 			userId,
-			count: result.Items.length,
+			totalChatRooms: result.Items.length,
 		});
 		return successResponse(result.Items as ChatRoomItems[]);
 	} catch (error) {
-		logger.error("Failed to get chatRooms in DynamoDB:", toError(error));
+		logger.error("Failed to get chatRooms in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -213,18 +213,18 @@ export const getChatMessages = async (
 			}),
 		);
 		if (!result.Items) {
-			logger.info("Not found the chatMessages in DynamoDB:", {
+			logger.info("Not found the chatMessages in DynamoDB", {
 				roomId,
 			});
 			return successResponse([]);
 		}
-		logger.info("Successfully to get chatMessages in DynamoDB:", {
+		logger.info("Successfully to get chatMessages in DynamoDB", {
 			roomId,
-			count: result.Items.length,
+			totalChatMessages: result.Items.length,
 		});
 		return successResponse(result.Items as ChatMessageItems[]);
 	} catch (error) {
-		logger.error("Failed to get chatMessages in DynamoDB:", toError(error));
+		logger.error("Failed to get chatMessages in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };

@@ -15,7 +15,7 @@ export const getEmbedding = async (content: string) => {
 		}
 		return result.data[0].embedding;
 	} catch (error) {
-		logger.error("Failed to getEmbedding request:", toError(error));
+		logger.error("Failed to getEmbedding request", toError(error));
 		throw error;
 	}
 };

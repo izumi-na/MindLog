@@ -34,18 +34,18 @@ export const getDiaries = async (
 			}),
 		);
 		if (!result.Items) {
-			logger.info("Not found the diaries in DynamoDB:", {
+			logger.info("Not found the diaries in DynamoDB", {
 				userId,
 			});
 			return successResponse([]);
 		}
 		logger.info("Successfully to fetch diaries from DynamoDB", {
 			userId,
-			count: result.Items.length,
+			totalDiaries: result.Items.length,
 		});
 		return successResponse(result.Items as DiaryItems[]);
 	} catch (error) {
-		logger.error("Failed to fetch diaries from DynamoDB:", toError(error));
+		logger.error("Failed to fetch diaries from DynamoDB", toError(error));
 	}
 	return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 };
@@ -75,13 +75,13 @@ export const createDiary = async (
 				Item: diaryData,
 			}),
 		);
-		logger.info("Successfully to create diary in DynamoDB:", {
+		logger.info("Successfully to create diary in DynamoDB", {
 			userId,
 			diaryId: diaryData.diaryId,
 		});
 		return successResponse(diaryData);
 	} catch (error) {
-		logger.error("Failed to create diary in DynamoDB:", toError(error));
+		logger.error("Failed to create diary in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -103,19 +103,19 @@ export const deleteDiary = async (
 			}),
 		);
 		if (!result.Attributes) {
-			logger.info("Not found the diary for deletion in DynamoDB:", {
+			logger.info("Not found the diary for deletion in DynamoDB", {
 				userId,
 				diaryId,
 			});
 			return errorResponse(ERROR_CODES.DIARY_NOT_FOUND);
 		}
-		logger.info("Successfully to delete diary in DynamoDB:", {
+		logger.info("Successfully to delete diary in DynamoDB", {
 			userId,
 			diaryId,
 		});
 		return successResponse(result.Attributes as DiaryItems);
 	} catch (error) {
-		logger.error("Failed to delete diary in DynamoDB:", toError(error));
+		logger.error("Failed to delete diary in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -136,19 +136,19 @@ export const getDiary = async (
 			}),
 		);
 		if (!result.Item) {
-			logger.info("Not found the diary in DynamoDB:", {
+			logger.info("Not found the diary in DynamoDB", {
 				userId,
 				diaryId,
 			});
 			return errorResponse(ERROR_CODES.DIARY_NOT_FOUND);
 		}
-		logger.info("Successfully to get diary in DynamoDB:", {
+		logger.info("Successfully to get diary in DynamoDB", {
 			userId,
 			diaryId,
 		});
 		return successResponse(result.Item as DiaryItems);
 	} catch (error) {
-		logger.error("Failed to get diary in DynamoDB:", toError(error));
+		logger.error("Failed to get diary in DynamoDB", toError(error));
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };
@@ -218,7 +218,7 @@ export const updateDiary = async (
 					"attribute_exists(userId) AND attribute_exists(diaryId)",
 			}),
 		);
-		logger.info("Successfully to update diary in DynamoDB:", {
+		logger.info("Successfully to update diary in DynamoDB", {
 			userId,
 			diaryId,
 		});
@@ -226,13 +226,13 @@ export const updateDiary = async (
 	} catch (error) {
 		const err = toError(error);
 		if (err.name === "ConditionalCheckFailedException") {
-			logger.info("Not found the diary for update in DynamoDB:", {
+			logger.info("Not found the diary for update in DynamoDB", {
 				userId,
 				diaryId,
 			});
 			return errorResponse(ERROR_CODES.DIARY_NOT_FOUND);
 		}
-		logger.error("Failed to update diary in DynamoDB:", err);
+		logger.error("Failed to update diary in DynamoDB", err);
 		return errorResponse(ERROR_CODES.REQUEST_PROCESSING_ERROR);
 	}
 };

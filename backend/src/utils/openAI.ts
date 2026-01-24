@@ -36,7 +36,7 @@ export const openAIChatClient = async (
 			stream: true,
 		});
 	} catch (error) {
-		logger.error("Failed to create OpenAIChatClient:", toError(error));
+		logger.error("Failed to create OpenAIChatClient", toError(error));
 		throw error;
 	}
 };
@@ -66,16 +66,15 @@ export const openAITitleClient = async (
 			result.output[0].content[0].type === "output_text" &&
 			result.output[0].content[0].text
 		) {
-			logger.info(
-				"Successfully to create chatRoomTitle:",
-				result.output[0].content[0].text,
-			);
+			logger.info("Successfully to create chatRoomTitle", {
+				chatRoomTitle: result.output[0].content[0].text,
+			});
 			return result.output[0].content[0].text;
 		} else {
 			throw new Error("Failed to create chatRoom Title");
 		}
 	} catch (error) {
-		logger.error("Failed to create openAITitleClient:", toError(error));
+		logger.error("Failed to create openAITitleClient", toError(error));
 		throw error;
 	}
 };
