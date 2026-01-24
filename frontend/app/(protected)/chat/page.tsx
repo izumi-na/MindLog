@@ -16,6 +16,7 @@ export default function Chat() {
 		isChatLoading,
 		fetchChatRoomMessages,
 		selectRoomId,
+		handleClearChatRoom,
 	} = useChat();
 	const scrollBottomRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,10 @@ export default function Chat() {
 		fetchChatRooms();
 	}, []);
 
+	useEffect(() => {
+		console.log("selectRoomId:", selectRoomId);
+	}, [selectRoomId]);
+
 	return (
 		<div className="grid grid-cols-[1fr_4fr]">
 			<div className="bg-stone-50 p-2">
@@ -37,6 +42,7 @@ export default function Chat() {
 					isChatLoading={isChatLoading}
 					handleChatRoomClick={fetchChatRoomMessages}
 					selectRoomId={selectRoomId}
+					handleClearChatRoom={handleClearChatRoom}
 				/>
 			</div>
 			<div className="flex flex-col min-h-[90lvh] p-6">

@@ -31,12 +31,28 @@ export const useChat = () => {
 				},
 			]);
 			const authClient = await getAuthClient();
-			const res = await authClient.chat.rooms[":roomId"].$post({
-				json: data,
-				param: {
-					roomId,
-				},
-			});
+			// roomIdが""の時はチャットルーム新規作成、それ以外は既存チャットルームにメッセージ追加
+			const res =
+				roomId === ""
+					? await authClient.chat.rooms.$post({
+							json: data,
+						})
+					: await authClient.chat.rooms[":roomId"].$post({
+							json: data,
+							param: {
+								roomId,
+							},
+						});
+			const newRoomId = res.headers.get("X-Room-Id");
+			if (newRoomId) {
+				roomId = newRoomId;
+				setSelectRoomId(newRoomId);
+				setChatMessages((prev) =>
+					prev.map((item) =>
+						item.roomId === "" ? { ...item, roomId: newRoomId } : item,
+					),
+				);
+			}
 			const reader = res.body?.getReader();
 			if (!reader) return;
 			const decoder = new TextDecoder();
@@ -64,7 +80,7 @@ export const useChat = () => {
 					return [
 						...prev,
 						{
-							roomId: roomId,
+							roomId,
 							createdAt: new Date().toISOString(),
 							userId: "",
 							chatMessageId: assistantMessageId,
@@ -126,7 +142,6 @@ export const useChat = () => {
 				throw new Error("Failed to Fetch ChatRoomMessages");
 			}
 			const result = await res.json();
-			console.log(result);
 			if (!result) {
 				throw new Error("Failed to Parse ChatRoomMessages");
 			}
@@ -143,6 +158,12 @@ export const useChat = () => {
 		}
 	};
 
+	// チャットルームをクリアにする
+	const handleClearChatRoom = () => {
+		setSelectRoomId("");
+		setChatMessages([]);
+	};
+
 	return {
 		sendChatMessage,
 		chatMessages,
@@ -152,5 +173,6 @@ export const useChat = () => {
 		isChatLoading,
 		fetchChatRoomMessages,
 		selectRoomId,
+		handleClearChatRoom,
 	};
 };

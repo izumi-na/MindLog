@@ -10,6 +10,7 @@ const app = new Hono()
 			origin: "http://localhost:3000",
 			allowHeaders: ["Content-Type", "Authorization"],
 			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+			exposeHeaders: ["X-Room-Id"],
 		}),
 	)
 	.route("/diaries", diaryRoute)
