@@ -27,13 +27,9 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully to get diaries request:", {
-				userId,
-				count: result.data.length,
-			});
 			return c.json(result, 200);
 		} catch (error) {
-			logger.error("Failed to get diaries request:", toError(error));
+			logger.error("Failed to get diaries request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -49,13 +45,9 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully created diary request:", {
-				userId,
-				diaryId: result.data.diaryId,
-			});
 			return c.json(result, 201);
 		} catch (error) {
-			logger.error("Failed to create diary request:", toError(error));
+			logger.error("Failed to create diary request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -78,13 +70,13 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully to delete diary request:", {
+			logger.info("Successfully to delete diary request", {
 				userId,
 				diaryId: result.data.diaryId,
 			});
 			return c.json(result, 200);
 		} catch (error) {
-			logger.error("Failed to delete diary request:", toError(error));
+			logger.error("Failed to delete diary request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -107,13 +99,13 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully to get diary request:", {
+			logger.info("Successfully to get diary request", {
 				userId,
 				diaryId: result.data.diaryId,
 			});
 			return c.json(result, 200);
 		} catch (error) {
-			logger.error("Failed to get diary request:", toError(error));
+			logger.error("Failed to get diary request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -137,13 +129,13 @@ export const diaryRoute = new Hono<HonoEnv>()
 			if (!result.success) {
 				return c.json(result, ERROR_STATUS_CODE[result.error.code]);
 			}
-			logger.info("Successfully to update diary request:", {
+			logger.info("Successfully to update diary request", {
 				userId,
 				diaryId: result.data.diaryId,
 			});
 			return c.json(result, 200);
 		} catch (error) {
-			logger.error("Failed to update diary request:", toError(error));
+			logger.error("Failed to update diary request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],

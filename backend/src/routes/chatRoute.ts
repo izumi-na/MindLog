@@ -108,14 +108,14 @@ export const chatRoute = new Hono<HonoEnv>()
 						}
 					}
 				} catch (error) {
-					logger.error("Failed to OpenAI API Request:", toError(error));
+					logger.error("Failed to OpenAI API Request", toError(error));
 					await stream.write("エラーが発生しました。もう一度お試しください。");
 				} finally {
 					stream.close();
 				}
 			});
 		} catch (error) {
-			logger.error("Failed to initialize OpenAI client:", toError(error));
+			logger.error("Failed to initialize OpenAI client", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -204,7 +204,7 @@ export const chatRoute = new Hono<HonoEnv>()
 								);
 								if (!resultUpdateChatRoom.success) {
 									// タイムスタンプ更新失敗は致命的ではないため、エラーにはしない
-									logger.warn("Failed to update chatRoom updatedAt:", {
+									logger.warn("Failed to update chatRoom updatedAt", {
 										userId,
 										roomId,
 									});
@@ -213,7 +213,7 @@ export const chatRoute = new Hono<HonoEnv>()
 							}
 						}
 					} catch (error) {
-						logger.error("Failed to OpenAI API Request:", toError(error));
+						logger.error("Failed to OpenAI API Request", toError(error));
 						await stream.write(
 							"エラーが発生しました。もう一度お試しください。",
 						);
@@ -222,7 +222,7 @@ export const chatRoute = new Hono<HonoEnv>()
 					}
 				});
 			} catch (error) {
-				logger.error("Failed to initialize OpenAI client:", toError(error));
+				logger.error("Failed to initialize OpenAI client", toError(error));
 				return c.json(
 					errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 					ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -246,7 +246,7 @@ export const chatRoute = new Hono<HonoEnv>()
 			);
 			return c.json(successResponse(sortChatRooms), 200);
 		} catch (error) {
-			logger.error("Failed to getChatRooms request:", toError(error));
+			logger.error("Failed to getChatRooms request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
@@ -282,7 +282,7 @@ export const chatRoute = new Hono<HonoEnv>()
 			}
 			return c.json(resultGetChatMessages, 200);
 		} catch (error) {
-			logger.error("Failed to getChatMessages request:", toError(error));
+			logger.error("Failed to getChatMessages request", toError(error));
 			return c.json(
 				errorResponse(ERROR_CODES.INTERNAL_SERVER_ERROR),
 				ERROR_STATUS_CODE[ERROR_CODES.INTERNAL_SERVER_ERROR],
