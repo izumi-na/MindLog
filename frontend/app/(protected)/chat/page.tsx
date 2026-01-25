@@ -35,7 +35,7 @@ export default function Chat() {
 	}, [selectRoomId]);
 
 	return (
-		<div className="grid grid-cols-[1fr_4fr]">
+		<div className="grid grid-cols-[1fr_3fr]">
 			<div className="bg-stone-50 p-2">
 				<ChatSideMenu
 					chatRooms={chatRooms}
