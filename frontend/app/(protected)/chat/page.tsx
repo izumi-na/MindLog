@@ -36,7 +36,7 @@ export default function Chat() {
 
 	return (
 		<div className="grid grid-cols-[1fr_3fr]">
-			<div className="bg-stone-50 p-2">
+			<div className="bg-stone-50 pl-2 pr-4 py-4 max-h-[94vh] overflow-y-auto">
 				<ChatSideMenu
 					chatRooms={chatRooms}
 					isChatLoading={isChatLoading}
@@ -45,7 +45,7 @@ export default function Chat() {
 					handleClearChatRoom={handleClearChatRoom}
 				/>
 			</div>
-			<div className="flex flex-col min-h-[90lvh] p-6">
+			<div className="flex flex-col h-[94vh] overflow-y-auto p-6">
 				<div className="grow">
 					<ChatOutput chatMessages={chatMessages} />
 				</div>

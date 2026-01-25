@@ -10,7 +10,11 @@ export const ChatInput = ({
 	isGenerating,
 	selectRoomId,
 }: {
-	sendChatMessage: (data: PostChatRequest, roomId: string) => Promise<void>;
+	sendChatMessage: (
+		data: PostChatRequest,
+		roomId: string,
+		reset: () => void,
+	) => Promise<void>;
 	isGenerating: boolean;
 	selectRoomId: string;
 }) => {
@@ -24,8 +28,7 @@ export const ChatInput = ({
 	});
 
 	const onSubmit = async (data: PostChatRequest) => {
-		await sendChatMessage(data, selectRoomId);
-		reset();
+		await sendChatMessage(data, selectRoomId, () => reset());
 	};
 
 	return (

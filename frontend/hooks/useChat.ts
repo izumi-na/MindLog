@@ -16,7 +16,11 @@ export const useChat = () => {
 	const [selectRoomId, setSelectRoomId] = useState("");
 
 	// チャットメッセージ送信時
-	const sendChatMessage = async (data: PostChatRequest, roomId: string) => {
+	const sendChatMessage = async (
+		data: PostChatRequest,
+		roomId: string,
+		reset: () => void,
+	) => {
 		setIsGenerating(true);
 		try {
 			setChatMessages((prev) => [
@@ -30,6 +34,7 @@ export const useChat = () => {
 					content: data.message,
 				},
 			]);
+			reset();
 			const authClient = await getAuthClient();
 			// roomIdが""の時はチャットルーム新規作成、それ以外は既存チャットルームにメッセージ追加
 			const res =

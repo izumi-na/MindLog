@@ -3,9 +3,9 @@
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import { CalendarDiaryDetailDialog } from "@/components/diary/CalendarDiaryDetailDialog";
 import { CalendarView } from "@/components/diary/CalendarView";
 import { DeleteConfirmDialog } from "@/components/diary/DeleteConfirmDialog";
-import { DiaryDetailDialog } from "@/components/diary/DiaryDetailDialog";
 import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/hooks/useCalendar";
 import { useDiaries } from "@/hooks/useDiaries";
@@ -42,22 +42,31 @@ export default function CalendarPage() {
 
 	return (
 		<div className="px-12 py-6">
-			<div className="flex justify-between mb-4">
-				<Button variant="outline" asChild>
-					<Link href={`/chat`}>
-						← <Sparkles />
-						AIとチャットする
-					</Link>
-				</Button>
-				<Button variant="outline" asChild>
-					<Link href={`/diaries/new`}>＋日記登録</Link>
-				</Button>
+			<div className="grid grid-cols-[1fr_auto_1fr] mb-4">
+				<div>
+					<Button variant="outline" asChild>
+						<Link href={`/chat`}>
+							← <Sparkles />
+							AIとチャットする
+						</Link>
+					</Button>
+				</div>
+				<div>
+					<Button variant="outline" asChild>
+						<Link href={`/diaries`}>日記一覧</Link>
+					</Button>
+				</div>
+				<div className="justify-self-end">
+					<Button variant="outline" asChild>
+						<Link href={`/diaries/new`}>＋日記登録</Link>
+					</Button>
+				</div>
 			</div>
 			<CalendarView
 				diariesByDate={diariesByDate}
 				handleCalendarItemClick={handleCalendarItemClick}
 			/>
-			<DiaryDetailDialog
+			<CalendarDiaryDetailDialog
 				calendarDialogOpen={calendarDialogOpen}
 				selectCalendarDate={selectCalendarDate}
 				handleDialogClose={handleDialogClose}
