@@ -1,5 +1,5 @@
 import type { ChatRoomItems } from "@/types/chat";
-import { CardsSkeleton } from "../diary/DiaryCardSkeletons";
+import { ChatRoomCardSkeletons } from "../chat/ChatRoomCardSkeletons";
 import { ChatRoomCardItems } from "./ChatRoomCardItems";
 import { NewChat } from "./NewChat";
 
@@ -20,7 +20,7 @@ export function ChatSideMenu({
 		<div className="flex flex-col gap-4">
 			<NewChat handleClearChatRoom={handleClearChatRoom} />
 			{isChatLoading ? (
-				<CardsSkeleton />
+				<ChatRoomCardSkeletons />
 			) : (
 				<div className="flex flex-col gap-2">
 					<ChatRoomCardItems

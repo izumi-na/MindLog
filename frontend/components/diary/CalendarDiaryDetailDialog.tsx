@@ -8,7 +8,7 @@ import {
 import type { DiaryItems } from "@/types/diary";
 import { CardItems } from "./DiaryCardItems";
 
-export const DiaryDetailDialog = ({
+export const CalendarDiaryDetailDialog = ({
 	calendarDialogOpen,
 	selectCalendarDate,
 	handleDialogClose,
