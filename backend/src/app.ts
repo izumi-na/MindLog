@@ -7,7 +7,10 @@ const app = new Hono()
 	.use(
 		"*",
 		cors({
-			origin: "http://localhost:3000",
+			origin: [
+				"http://localhost:3000",
+				"https://mind-log-frontend-w3tp.vercel.app",
+			],
 			allowHeaders: ["Content-Type", "Authorization"],
 			allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 			exposeHeaders: ["X-Room-Id"],
