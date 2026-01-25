@@ -1,9 +1,12 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 import { CalendarView } from "@/components/diary/CalendarView";
 import { DeleteConfirmDialog } from "@/components/diary/DeleteConfirmDialog";
 import { DiaryDetailDialog } from "@/components/diary/DiaryDetailDialog";
+import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/hooks/useCalendar";
 import { useDiaries } from "@/hooks/useDiaries";
 
@@ -38,7 +41,18 @@ export default function CalendarPage() {
 	}, [diaryData]);
 
 	return (
-		<div className="p-12">
+		<div className="px-12 py-6">
+			<div className="flex justify-between mb-4">
+				<Button variant="outline" asChild>
+					<Link href={`/chat`}>
+						← <Sparkles />
+						AIとチャットする
+					</Link>
+				</Button>
+				<Button variant="outline" asChild>
+					<Link href={`/diaries/new`}>＋日記登録</Link>
+				</Button>
+			</div>
 			<CalendarView
 				diariesByDate={diariesByDate}
 				handleCalendarItemClick={handleCalendarItemClick}
