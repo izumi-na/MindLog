@@ -60,7 +60,7 @@ Resources:
       Name: !Sub "${NodeEnv}-${Project}-Api"
       StageName: !Ref NodeEnv
       Cors:
-          AllowOrigin: "'http://localhost:3000','https://mind-log-frontend.vercel.app"
+          AllowOrigin: "'*'"
           AllowHeaders: "'Content-Type, Authorization'"
           AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
       DefinitionBody:
