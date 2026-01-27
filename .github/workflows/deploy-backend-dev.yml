@@ -1,0 +1,72 @@
+name: Deploy Backend to AWS (Development)
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - 'backend/**'
+            - '.github/workflows/deploy-backend-dev.yml'
+
+env:
+    SESSION_NAME: gh-oidc-${{ github.run_id }}-${{ github.run_attempt }}
+    ENVIRONMENT: dev # 環境によって指定を変更する
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        environment: dev # 環境によって指定を変更する
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                node-version: "24"
+                cache: 'pnpm'
+
+            - name: Setup SAM CLI
+              uses: aws-actions/setup-sam@v2
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v5
+              with:
+                role-to-assume: ${{ vars.AWS_ROLE_ARN_BACKEND }}
+                role-session-name: ${{ env.SESSION_NAME }}
+                aws-region: ap-northeast-1
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: SAM Build
+              run: pnpm build:backend:${{ env.ENVIRONMENT }}
+
+            - name: SAM Deploy
+              run: pnpm deploy:backend:${{ env.ENVIRONMENT }}
+
+            - name: Get API URL
+              id: outputs
+              run: |
+                STACK_NAME="${{ env.ENVIRONMENT }}-test-mindlog-sam"
+                API_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" \
+                --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+                echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+
+            - name: Deployment summary
+              run: |
+                echo "## Backend Deployment Summary" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+                echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+                echo "| **Environment** | \`${{ env.ENVIRONMENT }}\` |" >> $GITHUB_STEP_SUMMARY
+                echo "| **Stack** | \`${{ env.ENVIRONMENT }}-test-mindlog-sam\` |" >> $GITHUB_STEP_SUMMARY
+                echo "| **API URL** | ${{ steps.outputs.outputs.api_url }} |" >> $GITHUB_STEP_SUMMARY

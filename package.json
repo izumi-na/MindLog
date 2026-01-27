@@ -10,6 +10,7 @@
 		"url": "git+https://github.com/izumi-na/MindLog"
 	},
 	"scripts": {
+		"format:check": "biome format .",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"check": "biome check --write .",
