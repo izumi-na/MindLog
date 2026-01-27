@@ -31,16 +31,16 @@ jobs:
               run: pnpm install
 
             - name: Format check
-              run: pnpm format:check
+              run: pnpm -F backend format:check
 
             - name: Lint
-              run: pnpm lint
+              run: pnpm -F backend lint
 
             - name: Type check
-              run: pnpm --filter backend type-check
+              run: pnpm -F backend type-check
 
             - name: Build
-              run: pnpm --filter backend build
+              run: pnpm -F backend build
 
             - name: Validate SAM template
               working-directory: backend
