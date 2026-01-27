@@ -58,7 +58,7 @@ jobs:
               run: |
                 STACK_NAME="${{ env.ENVIRONMENT }}-test-mindlog-sam"
                 API_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" \
-                --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+                --query "Stacks[0].Outputs[?OutputKey=='RestApiGatewayUrl'].OutputValue" --output text)
                 echo "api_url=$API_URL" >> $GITHUB_OUTPUT
 
             - name: Deployment summary
