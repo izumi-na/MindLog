@@ -156,6 +156,14 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  RestApiIdParameter:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: !Sub "/${Project}/${NodeEnv}/api-gateway-id"
+        Type: String
+        Value: !Ref RestApiGateway
+        Description: "API Gateway REST API ID"
+
   ChatMessagesTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain

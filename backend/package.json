@@ -2,6 +2,9 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"scripts": {
+		"build": "tsc",
+		"format:check": "biome format .",
+		"lint": "biome lint .",
 		"type-check": "tsc --noEmit",
 		"sam:build:dev": "sam build --config-env=dev",
 		"sam:deploy:dev": "sam deploy --config-env=dev --no-confirm-changeset"
