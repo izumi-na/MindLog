@@ -10,6 +10,7 @@ on:
 jobs:
     lint-and-build:
         runs-on: ubuntu-latest
+        environment: dev # 環境によって指定を変更する
 
         steps:
             - name: Checkout code
