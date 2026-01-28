@@ -2,6 +2,9 @@
 	"name": "frontend",
 	"version": "1.0.0",
 	"scripts": {
+		"format:check": "biome format .",
+		"lint": "biome lint .",
+		"type-check": "tsc --noEmit",
 		"dev": "next dev",
 		"build": "next build"
 	},
