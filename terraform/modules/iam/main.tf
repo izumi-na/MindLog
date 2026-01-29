@@ -159,6 +159,19 @@ resource "aws_iam_role_policy" "terraform_deploy_policy" {
         ]
         Effect   = "Allow"
         Resource = ["*"]
+      },
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+          ]
+          Effect = "Allow"
+          Resource = [
+            "arn:aws:s3:::${var.env}-test-${var.project}-tfstate",
+            "arn:aws:s3:::${var.env}-test-${var.project}-tfstate/*"
+          ]
       }
     ]
   })
