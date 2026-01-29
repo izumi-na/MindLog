@@ -89,3 +89,77 @@ resource "aws_iam_role_policy" "backend_deploy_policy" {
     ]
   })
 }
+
+// terraformデプロイ用ロール
+resource "aws_iam_role" "terraform_deploy_role" {
+  name = format("%s-%s-terraform-deploy-role", var.env, var.project)
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
+        }
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:izumi-na/MindLog:*"
+          }
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+        }
+      },
+    ]
+  })
+}
+// terraformデプロイ用ポリシー
+resource "aws_iam_role_policy" "terraform_deploy_policy" {
+  name = format("%s-%s-terraform-deploy-policy", var.env, var.project)
+  role = aws_iam_role.terraform_deploy_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "cognito-idp:CreateUserPool",
+          "cognito-idp:DeleteUserPool",
+          "cognito-idp:DescribeUserPool",
+          "cognito-idp:UpdateUserPool",
+          "cognito-idp:CreateUserPoolClient",
+          "cognito-idp:DeleteUserPoolClient",
+          "cognito-idp:DescribeUserPoolClient",
+          "cognito-idp:UpdateUserPoolClient",
+          "cognito-idp:TagResource",
+          "cognito-idp:UntagResource",
+          "cognito-idp:ListUserPools"
+        ]
+        Effect   = "Allow"
+        Resource = ["*"]
+      },
+       {
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:UpdateRole",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:GetRolePolicy",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListRolePolicies",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:PassRole"
+        ]
+        Effect   = "Allow"
+        Resource = ["*"]
+      }
+    ]
+  })
+}
