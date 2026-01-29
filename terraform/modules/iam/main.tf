@@ -135,7 +135,8 @@ resource "aws_iam_role_policy" "terraform_deploy_policy" {
           "cognito-idp:UpdateUserPoolClient",
           "cognito-idp:TagResource",
           "cognito-idp:UntagResource",
-          "cognito-idp:ListUserPools"
+          "cognito-idp:ListUserPools",
+          "cognito-idp:GetUserPoolMfaConfig"
         ]
         Effect   = "Allow"
         Resource = ["*"]
@@ -171,6 +172,15 @@ resource "aws_iam_role_policy" "terraform_deploy_policy" {
           Resource = [
             "arn:aws:s3:::${var.env}-test-${var.project}-tfstate",
             "arn:aws:s3:::${var.env}-test-${var.project}-tfstate/*"
+          ]
+      },
+      {
+        Action = [
+          "ssm:GetParameter"
+          ]
+          Effect = "Allow"
+          Resource = [
+            "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/${var.project}/${var.env}/*"
           ]
       }
     ]
