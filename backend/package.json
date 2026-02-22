@@ -7,7 +7,8 @@
 		"lint": "biome lint .",
 		"type-check": "tsc --noEmit",
 		"sam:build:dev": "sam build --config-env=dev",
-		"sam:deploy:dev": "sam deploy --config-env=dev --no-confirm-changeset --no-fail-on-empty-changeset"
+		"sam:deploy:dev": "sam deploy --config-env=dev --no-confirm-changeset --no-fail-on-empty-changeset",
+		"test": "vitest"
 	},
 	"type": "module",
 	"dependencies": {
@@ -22,6 +23,7 @@
 	"devDependencies": {
 		"@types/aws-lambda": "^8.10.159",
 		"esbuild": "^0.27.2",
-		"tsx": "^4.21.0"
+		"tsx": "^4.21.0",
+		"vitest": "^4.0.18"
 	}
 }
