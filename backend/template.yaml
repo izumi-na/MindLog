@@ -41,6 +41,7 @@ Globals:
       - arm64
     Tracing: Active
     Timeout: 180
+    MemorySize: 256
     Environment:
         Variables:
           NODE_ENV: !Ref NodeEnv
