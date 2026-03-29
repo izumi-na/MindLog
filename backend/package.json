@@ -4,6 +4,7 @@
 	"scripts": {
 		"build": "tsc",
 		"format:check": "biome format .",
+		"format:write": "biome format --write .",
 		"lint": "biome lint .",
 		"type-check": "tsc --noEmit",
 		"sam:build:dev": "sam build --config-env=dev",

@@ -68,10 +68,7 @@ export const chatRoute = new Hono<HonoEnv>()
 				// ストリーム完了後にDB保存・タイトル生成
 				await addMessage(userId, roomId, "assistant", fullText);
 
-				const updateTitle = await openAITitleClient(
-					params.message,
-					fullText,
-				);
+				const updateTitle = await openAITitleClient(params.message, fullText);
 				await updateChatRoom(userId, roomId, updateTitle);
 			});
 		} catch (error) {
