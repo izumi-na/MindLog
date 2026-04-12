@@ -18,6 +18,7 @@
 		"build:frontend": "pnpm -F frontend build",
 		"type-check:backend": "pnpm -F backend type-check",
 		"build:backend:dev": "pnpm -F backend sam:build:dev",
+		"build:backend:local": "pnpm -F backend build:local",
 		"deploy:backend:dev": "pnpm -F backend sam:deploy:dev"
 	},
 	"dependencies": {
