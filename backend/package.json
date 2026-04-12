@@ -2,7 +2,7 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"scripts": {
-		"build": "tsc",
+		"build:local": "esbuild src/index.ts --bundle --platform=node --target=node22 --outfile=dist/index.js --format=esm --packages=external",
 		"format:check": "biome format .",
 		"format:write": "biome format --write .",
 		"lint": "biome lint .",
@@ -18,6 +18,7 @@
 		"@aws-sdk/client-dynamodb": "^3.966.0",
 		"@aws-sdk/client-secrets-manager": "^3.971.0",
 		"@aws-sdk/lib-dynamodb": "^3.966.0",
+		"@hono/node-server": "^1.19.12",
 		"@hono/zod-validator": "^0.7.6",
 		"ai": "^6.0.141",
 		"aws-jwt-verify": "^5.1.1",

@@ -5,7 +5,10 @@ if (!process.env.REGION) {
 	throw new Error("Environment variables REGION must be set");
 }
 
-const client = new DynamoDBClient({ region: process.env.REGION });
+const client = new DynamoDBClient({
+	region: process.env.REGION,
+	endpoint: process.env.ENDPOINT || undefined,
+});
 
 export const dynamoDBDocClient = DynamoDBDocumentClient.from(client, {
 	marshallOptions: {
